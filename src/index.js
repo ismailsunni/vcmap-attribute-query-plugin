@@ -1,4 +1,15 @@
 import { version, name } from '../package.json';
+import Weather from './api/weather.js';
+import weatherComponent from './ui/weatherComponent.vue';
+import widgetButton from './ui/widgetButton.vue';
+
+const routes = [
+  {
+    name: 'weather',
+    path: '/weather',
+    component: weatherComponent,
+  },
+];
 
 /**
  * @typedef {Object} PluginState
@@ -69,5 +80,12 @@ export default function plugin(config, baseUrl) {
       // eslint-disable-next-line no-console
       console.log('hook to cleanup');
     },
+    postInitialize: async (x) => Weather.getInstance(x),
+    registerUiPlugin: async () => ({
+      supportedMaps: ['vcs.vcm.maps.Cesium'],
+      name: 'weather',
+      routes,
+      widgetButton,
+    }),
   };
 }
