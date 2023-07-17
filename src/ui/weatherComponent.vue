@@ -67,7 +67,6 @@
 </style>
 
 <script>
-  import Weather from '../api/weather';
 
   export default {
     name: 'weatherComponent',
@@ -107,17 +106,12 @@
     },
     methods: {
       start() {
-        const weather = Weather.getInstance();
-        weather.start(this.selectedSystem, this.intensity);
-        weather.updateLocation();
+
       },
       stop() {
-        const weather = Weather.getInstance();
-        weather.stop();
+
       },
       updateLocation() {
-        const weather = Weather.getInstance();
-        weather.updateLocation();
       },
     },
   };

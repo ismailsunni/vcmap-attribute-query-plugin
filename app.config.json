@@ -1,0 +1,43 @@
+{
+  "modules": [
+    {
+      "name": "projectsDemo",
+      "_id": "projectsConfig",
+      "plugins": [
+        {
+          "name": "@vcmap/project-selector",
+          "entry": "plugins/@vcmap/project-selector/index.js",
+          "selected": "",
+          "selectedModules": [],
+          "open": false,
+          "projects": [
+            {
+              "name": "VC Map HOSTING",
+              "description": "AEROWEST DEMO (Standard Hosting Layout)",
+              "modules": ["config/aerowest.config.json"]
+            },
+            {
+              "name": "VC Map Demo",
+              "description": "VC Map Demo www.virtualcitymap.de",
+              "modules": ["config/www.config.json"]
+            },
+            {
+              "name": "My Project",
+              "modules": ["foo.json"]
+            }
+          ],
+          "modules": [
+            "config/dev.config.json",
+            "config/codes.config.json",
+            "config/graphFeatureInfo.config.json"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "custom module",
+      "layers": [],
+      "maps": []
+    }
+  ]
+}

@@ -1,15 +1,6 @@
+import { createToggleAction, ToolboxType } from '@vcmap/ui';
 import { version, name } from '../package.json';
-import Weather from './api/weather.js';
 import weatherComponent from './ui/weatherComponent.vue';
-import widgetButton from './ui/widgetButton.vue';
-
-const routes = [
-  {
-    name: 'weather',
-    path: '/weather',
-    component: weatherComponent,
-  },
-];
 
 /**
  * @typedef {Object} PluginState
@@ -25,6 +16,7 @@ const routes = [
 export default function plugin(config, baseUrl) {
   // eslint-disable-next-line no-console
   console.log(config, baseUrl);
+
   return {
     get name() {
       return name;
@@ -32,60 +24,42 @@ export default function plugin(config, baseUrl) {
     get version() {
       return version;
     },
+    _destroyToggleAction: () => {},
+    _removeToolbox: () => {},
     /**
      * @param {import("@vcmap/ui").VcsUiApp} vcsUiApp
      * @param {PluginState=} state
      * @returns {Promise<void>}
      */
-    initialize: async (vcsUiApp, state) => {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Called before loading the rest of the current context. Passed in the containing Vcs UI App ',
-        vcsUiApp,
-        state,
+    initialize(vcsUiApp, state) {
+      const { action, destroy } = createToggleAction(
+        {
+          id: 'weatherToggleAction',
+          name: 'Weather App',
+          icon: 'mdi-umbrella'
+        },
+        {
+          id: 'weatherWindow',
+          component: weatherComponent,
+        },
+        vcsUiApp.windowManager,
+        name,
       );
-    },
-    /**
-     * @param {import("@vcmap/ui").VcsUiApp} vcsUiApp
-     * @returns {Promise<void>}
-     */
-    onVcsAppMounted: async (vcsUiApp) => {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Called when the root UI component is mounted and managers are ready to accept components',
-        vcsUiApp,
-      );
-    },
-    /**
-     * @returns {T}
-     */
-    toJSON() {
-      // eslint-disable-next-line no-console
-      console.log('Called when serializing this plugin instance');
-      return {};
-    },
-    /**
-     * should return the plugins state
-     * @param {boolean} forUrl
-     * @returns {PluginState}
-     */
-    getState(forUrl) {
-      // eslint-disable-next-line no-console
-      console.log('Called when collecting state, e.g. for create link', forUrl);
-      return {
-        prop: '*',
+
+      this._destroyToggleAction = destroy;
+
+      const { id } = vcsUiApp.toolboxManager.add({
+        type: ToolboxType.SINGLE,
+        action,
+      }, name);
+
+      this._removeToolbox = () => {
+        vcsUiApp.toolboxManager.remove(id);
       };
     },
     destroy() {
-      // eslint-disable-next-line no-console
-      console.log('hook to cleanup');
+      this._destroyToggleAction();
+      this._removeToolbox();
     },
-    postInitialize: async (x) => Weather.getInstance(x),
-    registerUiPlugin: async () => ({
-      supportedMaps: ['vcs.vcm.maps.Cesium'],
-      name: 'weather',
-      routes,
-      widgetButton,
-    }),
   };
 }
