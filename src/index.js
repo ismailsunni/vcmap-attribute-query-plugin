@@ -26,17 +26,13 @@ export default function plugin(config, baseUrl) {
     },
     _destroyToggleAction: () => {},
     _removeToolbox: () => {},
-    /**
-     * @param {import("@vcmap/ui").VcsUiApp} vcsUiApp
-     * @param {PluginState=} state
-     * @returns {Promise<void>}
-     */
+
     initialize(vcsUiApp, state) {
       const { action, destroy } = createToggleAction(
         {
           id: 'weatherToggleAction',
           name: 'Weather App',
-          icon: 'mdi-umbrella'
+          icon: 'mdi-umbrella',
         },
         {
           id: 'weatherWindow',
@@ -48,10 +44,13 @@ export default function plugin(config, baseUrl) {
 
       this._destroyToggleAction = destroy;
 
-      const { id } = vcsUiApp.toolboxManager.add({
-        type: ToolboxType.SINGLE,
-        action,
-      }, name);
+      const { id } = vcsUiApp.toolboxManager.add(
+        {
+          type: ToolboxType.SINGLE,
+          action,
+        },
+        name,
+      );
 
       this._removeToolbox = () => {
         vcsUiApp.toolboxManager.remove(id);

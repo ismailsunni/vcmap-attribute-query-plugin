@@ -1,7 +1,6 @@
 <template>
   <div>
     <div>
-      <CloseButton></CloseButton>
       <h2>{{ $t('i18n_weather_title') }}</h2>
     </div>
     <div class="scroll-wrap">
@@ -14,7 +13,11 @@
           v-model="selectedSystem"
           @change="start"
         >
-          <option v-for="system in weatherSystems" :value="system.id">
+          <option
+            v-for="system in weatherSystems"
+            :value="system.id"
+            :key="system.id"
+          >
             {{ system.name }}
           </option>
         </select>
@@ -67,9 +70,8 @@
 </style>
 
 <script>
-
   export default {
-    name: 'weatherComponent',
+    name: 'WeatherComponent',
     i18n: {
       messages: {
         de: {
@@ -105,14 +107,9 @@
       };
     },
     methods: {
-      start() {
-
-      },
-      stop() {
-
-      },
-      updateLocation() {
-      },
+      start() {},
+      stop() {},
+      updateLocation() {},
     },
   };
 </script>
