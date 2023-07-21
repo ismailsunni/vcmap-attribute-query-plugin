@@ -21,6 +21,11 @@
               />
             </v-col>
           </v-row>
+          <v-row justify="end">
+            <v-col cols="6">
+              <VcsFormButton @click="start_query()">Start Query</VcsFormButton>
+            </v-col>
+          </v-row>
         </v-container>
       </template>
     </VcsFormSection>
@@ -44,6 +49,7 @@
     // VcsTextField,
     // VcsTooltip,
     // VcsSlider,
+    VcsFormButton,
     VcsFormSection,
   } from '@vcmap/ui';
   import { inject, onMounted } from 'vue';
@@ -59,6 +65,7 @@
       VcsSelect,
       VRow,
       VCol,
+      VcsFormButton,
       // VcsRadioGrid,
       // VcsButton,
       // VcsDatePicker,
@@ -76,6 +83,10 @@
 
       return {
         state,
+        start_query() {
+          // no-eslint
+          // console.log('test');
+        },
       };
     },
   };
