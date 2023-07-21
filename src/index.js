@@ -1,6 +1,6 @@
-import { createToggleAction, ToolboxType } from '@vcmap/ui';
+import { createToggleAction, ToolboxType, WindowSlot } from '@vcmap/ui';
 import { version, name } from '../package.json';
-import weatherComponent from './ui/weatherComponent.vue';
+import WFSAttributeQuery from './ui/wfsAttributeQueryComponent.vue';
 
 /**
  * @typedef {Object} PluginState
@@ -27,16 +27,23 @@ export default function plugin(config, baseUrl) {
     _destroyToggleAction: () => {},
     _removeToolbox: () => {},
 
+    // eslint-disable-next-line no-unused-vars
     initialize(vcsUiApp, state) {
       const { action, destroy } = createToggleAction(
         {
-          id: 'weatherToggleAction',
-          name: 'Weather App',
-          icon: 'mdi-umbrella',
+          id: 'wfsAttributeQueryWidgetAction',
+          title: 'WFS Attribute Query',
+          name: 'WFS Attribute Query',
+          icon: 'mdi-database-search',
         },
         {
-          id: 'weatherWindow',
-          component: weatherComponent,
+          id: 'wfsAttributeQueryWidgetAction',
+          component: WFSAttributeQuery,
+          slot: WindowSlot.DYNAMIC_LEFT,
+          state: {
+            headerTitle: 'WFS Attribute Query',
+            headerIcon: 'mdi-database-search',
+          },
         },
         vcsUiApp.windowManager,
         name,
