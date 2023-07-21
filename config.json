@@ -1,6 +1,4 @@
 {
   "name": "attribute-query",
-  "version": "1.0.0",
-  "radius": 100000.0,
-  "cloudHeight": 2000
+  "version": "1.0.0"
 }

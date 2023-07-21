@@ -67,5 +67,12 @@ export default function plugin(config, baseUrl) {
       this._destroyToggleAction();
       this._removeToolbox();
     },
+    i18n: {
+      en: {
+        'wfs-attribute-query': {
+          title: 'WFS Attribute Query',
+        },
+      },
+    },
   };
 }

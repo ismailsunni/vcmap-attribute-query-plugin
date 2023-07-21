@@ -1,23 +1,51 @@
 <template>
   <v-container class="px-1 py-1 main">
-    <div>Hello World</div>
+    <VcsFormSection heading="Query Options">
+      <template #default>
+        <v-container class="py-0 px-1">
+          <v-row>
+            <v-col cols="4">
+              <VcsLabel html-for="textInput" class="text-caption">
+                WFS Layer
+              </VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsSelect
+                :items="[
+                  { value: 'Layer 1' },
+                  { value: 'Layer 2' },
+                  { value: 'Layer 3' },
+                ]"
+                :item-text="(item) => item.value"
+                placeholder="Please select a layer"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </template>
+    </VcsFormSection>
   </v-container>
 </template>
 
 <script>
   import {
     VContainer,
+    VRow,
+    VCol,
     // VDivider,
     //  VIcon
   } from 'vuetify/lib';
-  // import {
-  //   VcsLabel,
-  //   VcsButton,
-  //   VcsDatePicker,
-  //   VcsTextField,
-  //   VcsTooltip,
-  //   VcsSlider,
-  // } from '@vcmap/ui';
+  import {
+    VcsLabel,
+    VcsSelect,
+    // VcsRadioGrid,
+    // VcsButton,
+    // VcsDatePicker,
+    // VcsTextField,
+    // VcsTooltip,
+    // VcsSlider,
+    VcsFormSection,
+  } from '@vcmap/ui';
   import { inject, onMounted } from 'vue';
 
   import { name } from '../../package.json';
@@ -26,7 +54,12 @@
     name: 'WFSAttributeQuery',
     components: {
       VContainer,
-      // VcsLabel,
+      VcsFormSection,
+      VcsLabel,
+      VcsSelect,
+      VRow,
+      VCol,
+      // VcsRadioGrid,
       // VcsButton,
       // VcsDatePicker,
       // VDivider,
@@ -37,16 +70,9 @@
     },
     setup() {
       const app = inject('vcsApp');
-      const cesiumWidget = app.maps.activeMap.getCesiumWidget();
-      const { clock } = cesiumWidget;
       const { state } = app.plugins.getByKey(name);
 
-      onMounted(() => {
-        if (state.removeListener) {
-          state.removeListener();
-        }
-        state.removeListener = clock.onTick.addEventListener(() => {});
-      });
+      onMounted(() => {});
 
       return {
         state,
