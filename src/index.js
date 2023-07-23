@@ -26,8 +26,7 @@ export default function plugin(config, baseUrl) {
     },
     _destroyToggleAction: () => {},
     _removeToolbox: () => {},
-
-    // eslint-disable-next-line no-unused-vars
+    state: {},
     initialize(vcsUiApp, state) {
       const { action, destroy } = createToggleAction(
         {

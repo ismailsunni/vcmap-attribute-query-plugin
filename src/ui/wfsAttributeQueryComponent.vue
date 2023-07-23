@@ -11,11 +11,7 @@
             </v-col>
             <v-col>
               <VcsSelect
-                :items="[
-                  { value: 'Layer 1' },
-                  { value: 'Layer 2' },
-                  { value: 'Layer 3' },
-                ]"
+                :items="state.layers"
                 :item-text="(item) => item.value"
                 placeholder="Please select a layer"
               />
@@ -56,6 +52,16 @@
 
   import { name } from '../../package.json';
 
+  function populateWFSLayers(app) {
+    const layers = [];
+    [...app.layers].forEach((l) => {
+      if (l.className === 'VectorLayer' || l.className === 'WFSLayer') {
+        layers.push({ value: l.name });
+      }
+    });
+    return layers;
+  }
+
   export default {
     name: 'WFSAttributeQuery',
     components: {
@@ -78,6 +84,7 @@
     setup() {
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
+      state.layers = populateWFSLayers(app);
 
       onMounted(() => {});
 
