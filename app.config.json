@@ -12,6 +12,10 @@
           "open": false,
           "projects": [
             {
+              "name": "Rennes 3D Project",
+              "modules": ["rennes3d.config.json"]
+            },
+            {
               "name": "VC Map HOSTING",
               "description": "AEROWEST DEMO (Standard Hosting Layout)",
               "modules": ["config/aerowest.config.json"]
@@ -20,10 +24,6 @@
               "name": "VC Map Demo",
               "description": "VC Map Demo www.virtualcitymap.de",
               "modules": ["config/www.config.json"]
-            },
-            {
-              "name": "My Project",
-              "modules": ["foo.json"]
             }
           ],
           "modules": [

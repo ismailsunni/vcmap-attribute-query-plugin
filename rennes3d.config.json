@@ -1,0 +1,263 @@
+{
+  "name": "Rennes3DConfig",
+  "mapcontainer": "vcs_map_container",
+  "_id": "Rennes3DConfig",
+  "startingViewpointName": "rennes",
+  "startingMapName": "cesium",
+  "projection": {
+    "epsg": "25833",
+    "proj4": "+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs"
+  },
+  "i18n": [
+    {
+      "name": "base",
+      "de": {
+        "layers": {
+          "pointcloud": {
+            "title": "Tiergarten"
+          },
+          "osmBuildingFootprints": {
+            "title": "OSM Gebäude Grundflächen"
+          }
+        },
+        "contentTree": {
+          "building": {
+            "title": "3D Gebäude"
+          }
+        }
+      },
+      "en": {
+        "layers": {
+          "pointcloud": {
+            "title": "Zoological garden"
+          },
+          "osmBuildingFootprints": {
+            "title": "OSM Building Footprints"
+          }
+        },
+        "contentTree": {
+          "building": {
+            "title": "3D buildings"
+          }
+        }
+      }
+    }
+  ],
+  "featureInfo": [
+    {
+      "type": "TableFeatureInfoView",
+      "name": "tableAll",
+      "keyMapping": {
+        "roofType": "codeLists.keys.roofType",
+        "function": "codeLists.keys.function"
+      },
+      "valueMapping": {
+        "roofType": "codeLists.values.roofType.${value}",
+        "function": {
+          "1000": "codeLists.values.function.1000",
+          "1111": "myOwnMapping1111"
+        }
+      }
+    },
+    {
+      "type": "TableFeatureInfoView",
+      "name": "filteredTable",
+      "attributeKeys": ["gml:name", "function"],
+      "keyMapping": {
+        "function": "codeLists.keys.function"
+      },
+      "valueMapping": {
+        "function": "codeLists.values.function.${value}"
+      }
+    }
+  ],
+  "maps": [
+    {
+      "type": "OpenlayersMap",
+      "name": "ol3"
+    },
+    {
+      "type": "CesiumMap",
+      "name": "cesium",
+      "debugging": false,
+      "fxaa": false,
+      "enableLightning": true,
+      "allowSoftwareRendering": false,
+      "maximumScreenSpaceError": 2,
+      "fogEnabled": true,
+      "fogEnabledMobile": true,
+      "fogDensity": 0.0002,
+      "fogDensityMobile": 0.0004,
+      "fogScreenSpaceError": 2,
+      "fogScreenSpaceErrorMobile": 4
+    }
+  ],
+  "layers": [
+    {
+      "name": "terrain",
+      "type": "TerrainLayer",
+      "url": "https://rennes3d-dev-tiles.s3.fr-par.scw.cloud/b3ef17bf-fdde-4979-8f05-8b4db5811c43/",
+      "activeOnStartup": true,
+      "requestVertexNormals": true,
+      "zIndex": 1,
+      "properties": {
+        "title": "Terrain",
+        "showInOverviewMap": true
+      }
+    },
+    {
+      "name": "Openstreetmap OSM Cache",
+      "url": "https://osm.virtualcitymap.de/mapproxy/wmts/osm/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+      "type": "WMTSLayer",
+      "datasourceId": "2jEtgBemjJaSNx3AH",
+      "activeOnStartup": true,
+      "layer": "osm",
+      "wmtsStyle": "default",
+      "format": "image/png",
+      "tileMatrixSetID": "osm_grid",
+      "tileMatrixPrefix": "",
+      "maxLevel": 19,
+      "tilingSchema": "mercator",
+      "extent": {
+        "coordinates": [-180, -85, 180, 85],
+        "projection": {
+          "epsg": "EPSG:4326"
+        }
+      },
+      "opacity": "1",
+      "hiddenObjectIds": [],
+      "numberOfLevelZeroTilesX": 1,
+      "numberOfLevelZeroTilesY": 1,
+      "exclusiveGroups": ["base"],
+      "properties": {
+        "title": "OpenStreetMap",
+        "showInOverviewMap": true,
+        "attributions": {
+          "provider": "OpenStreetMap contributors",
+          "url": "http://www.openstreetmap.org/",
+          "year": "2019"
+        }
+      }
+    },
+    {
+      "name": "iris",
+      "url": "https://public.sig.rennesmetropole.fr/geoserver/ows?service=WFS&request=getFeature&typename=dem_stats:iris&outputFormat=application/json&srsName=EPSG:4326",
+      "type": "GeoJSONLayer",
+      "activeOnStartup": true,
+      "zIndex": 4,
+      "style": {
+        "type": "VectorStyleItem",
+        "fill": {
+          "color": "rgba(0,0,0,0.2)"
+        },
+        "stroke": {
+          "color": "#FFFFFF",
+          "width": 1
+        }
+      }
+    },
+    {
+      "name": "installations",
+      "url": "https://public.sig.rennesmetropole.fr/geoserver/ows?service=WFS&request=getFeature&typename=nrj_prod:photovoltaique_installations_publiques&outputFormat=application/json&srsName=EPSG:4326",
+      "type": "GeoJSONLayer",
+      "activeOnStartup": false,
+      "zIndex": 4,
+      "vectorProperties": {
+        "altitudeMode": "relativeToGround",
+        "heightAboveGround": 5,
+        "eyeOffset": [0, 0, -100]
+      }
+    },
+    {
+      "type": "CesiumTilesetLayer",
+      "name": "roof3d",
+      "url": "https://rennes-coopterr-solaire-tiles.s3.fr-par.scw.cloud/fe157549-1c80-47f1-828a-f1a97bf92d80",
+      "activeOnStartup": true,
+      "allowPicking": true,
+      "screenSpaceError": 16,
+      "screenSpaceErrorMobile": 32,
+      "zIndex": 1
+    },
+    {
+      "name": "rennesOrtho",
+      "type": "WMTSLayer",
+      "url": "https://public.sig.rennesmetropole.fr/geowebcache/service/wmts",
+      "layer": "raster:ortho2021",
+      "format": "image/jpeg",
+      "tileMatrixSetID": "EPSG:3857",
+      "tileMatrixPrefix": "EPSG:3857:",
+      "extent": {
+        "coordinates": [
+          -2.1170142251181825, 47.78117827367612, -1.170835369910388,
+          48.39479586736775
+        ],
+        "epsg": "EPSG:4326"
+      },
+      "activeOnStartup": true,
+      "tileSize": [256, 256],
+      "maxLevel": 22,
+      "zIndex": 1,
+      "properties": {
+        "title": "Rennes Ortho",
+        "showInOverviewMap": true
+      }
+    }
+  ],
+  "viewpoints": [
+    {
+      "name": "rennes",
+      "groundPosition": [-1.7219, 48.09],
+      "distance": 29000,
+      "pitch": -45,
+      "roll": 0,
+      "heading": 0,
+      "animate": true,
+      "type": "Viewpoint",
+      "duration": 0.5,
+      "properties": {
+        "title": {
+          "en": "Rennes",
+          "fr": "Rennes"
+        }
+      }
+    }
+  ],
+  "contentTree": [
+    {
+      "name": "baseMap",
+      "type": "SubContentTreeItem",
+      "icon": "$vcsPoi",
+      "title": "Base Maps"
+    },
+    {
+      "name": "baseMap.trees",
+      "type": "LayerContentTreeItem",
+      "layerName": "Bäume"
+    },
+    {
+      "name": "baseMap.terrain",
+      "type": "LayerContentTreeItem",
+      "layerName": "terrain"
+    },
+    {
+      "name": "baseMap.openStreetMap",
+      "type": "LayerContentTreeItem",
+      "layerName": "Openstreetmap OSM Cache"
+    },
+    {
+      "name": "baseMap.aerialImage2015",
+      "type": "LayerContentTreeItem",
+      "layerName": "rennesOrtho"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "@vcmap/theme-changer",
+      "entry": "plugins/@vcmap/theme-changer/index.js"
+    },
+    {
+      "name": "@vcmap/create-link",
+      "entry": "plugins/@vcmap/create-link/index.js"
+    }
+  ]
+}
