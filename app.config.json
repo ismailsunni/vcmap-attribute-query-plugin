@@ -7,7 +7,7 @@
         {
           "name": "@vcmap/project-selector",
           "entry": "plugins/@vcmap/project-selector/index.js",
-          "selected": "",
+          "selected": "Rennes 3D Project",
           "selectedModules": [],
           "open": false,
           "projects": [

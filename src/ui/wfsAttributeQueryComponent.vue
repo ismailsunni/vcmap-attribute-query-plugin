@@ -11,9 +11,24 @@
             </v-col>
             <v-col>
               <VcsSelect
+                @change="selectedLayerChanged"
                 :items="state.layers"
                 :item-text="(item) => item.value"
                 placeholder="Please select a layer"
+              />
+            </v-col>
+          </v-row>
+          <v-row v-if="state.attributes.length > 0">
+            <v-col cols="4">
+              <VcsLabel html-for="textInput" class="text-caption">
+                Attribute
+              </VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsSelect
+                :items="state.attributes"
+                :item-text="(item) => item"
+                placeholder="Please select the attribute"
               />
             </v-col>
           </v-row>
@@ -52,14 +67,32 @@
 
   import { name } from '../../package.json';
 
-  function populateWFSLayers(app) {
+  function getVectorLayers(app) {
     const layers = [];
     [...app.layers].forEach((l) => {
-      if (l.className === 'VectorLayer' || l.className === 'WFSLayer') {
+      if (
+        l.className === 'VectorLayer' ||
+        l.className === 'WFSLayer' ||
+        l.className === 'GeoJSONLayer'
+      ) {
         layers.push({ value: l.name });
       }
     });
     return layers;
+  }
+
+  async function getLayerByName(app, layerName) {
+    const layer = app.layers.getByKey(layerName);
+    await layer.fetchData();
+
+    return layer;
+  }
+
+  async function getLayerAttributes(app, layerName) {
+    const layer = await getLayerByName(app, layerName);
+    const feature = layer.getFeatures()[0];
+    const attributes = Object.keys(feature.getProperties());
+    return attributes;
   }
 
   export default {
@@ -81,19 +114,28 @@
       // VIcon,
       // VcsSlider,
     },
+
     setup() {
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
-      state.layers = populateWFSLayers(app);
+      state.layers = getVectorLayers(app);
+      state.attributes = ['attribute 1', 'attribute 2'];
 
       onMounted(() => {});
 
+      async function selectedLayerChanged(layerName) {
+        console.log(layerName);
+        console.log(state.attributes);
+        state.attributes = await getLayerAttributes(app, layerName);
+        console.log(state.attributes);
+      }
       return {
         state,
         start_query() {
           // no-eslint
           // console.log('test');
         },
+        selectedLayerChanged,
       };
     },
   };
