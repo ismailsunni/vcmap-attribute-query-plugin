@@ -18,7 +18,7 @@
               />
             </v-col>
           </v-row>
-          <v-row v-if="state.attributes.length > 0">
+          <v-row v-if="attributes.length > 0">
             <v-col cols="4">
               <VcsLabel html-for="textInput" class="text-caption">
                 Attribute
@@ -26,7 +26,7 @@
             </v-col>
             <v-col>
               <VcsSelect
-                :items="state.attributes"
+                :items="attributes"
                 :item-text="(item) => item"
                 placeholder="Please select the attribute"
               />
@@ -63,7 +63,7 @@
     VcsFormButton,
     VcsFormSection,
   } from '@vcmap/ui';
-  import { inject, onMounted } from 'vue';
+  import { inject, onMounted, ref } from 'vue';
 
   import { name } from '../../package.json';
 
@@ -119,15 +119,12 @@
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
       state.layers = getVectorLayers(app);
-      state.attributes = ['attribute 1', 'attribute 2'];
+      const attributes = ref([]);
 
       onMounted(() => {});
 
       async function selectedLayerChanged(layerName) {
-        console.log(layerName);
-        console.log(state.attributes);
-        state.attributes = await getLayerAttributes(app, layerName);
-        console.log(state.attributes);
+        attributes.value = await getLayerAttributes(app, layerName);
       }
       return {
         state,
@@ -136,6 +133,7 @@
           // console.log('test');
         },
         selectedLayerChanged,
+        attributes,
       };
     },
   };
