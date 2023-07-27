@@ -6,7 +6,7 @@
           <v-row>
             <v-col cols="3">
               <VcsLabel html-for="textInput" class="text-caption">
-                WFS Layer
+                Layer
               </VcsLabel>
             </v-col>
             <v-col>
@@ -41,7 +41,7 @@
             </v-col>
             <v-col cols="3">
               <VcsSelect
-                :items="operator.integer"
+                :items="availableOperators"
                 :item-text="(item) => item"
               />
             </v-col>
@@ -80,7 +80,7 @@
     VcsFormButton,
     VcsFormSection,
   } from '@vcmap/ui';
-  import { inject, onMounted, ref } from 'vue';
+  import { inject, onMounted, ref, computed } from 'vue';
 
   import { name } from '../../package.json';
 
@@ -139,6 +139,7 @@
       const operator = {
         integer: ['=', '!=', '<', '<=', '>', '>='],
         boolean: ['=', '!='],
+        string: ['LIKE', 'ILIKE'],
       };
 
       const selectedLayer = ref('');
@@ -157,6 +158,19 @@
         selectedAttribute.value = attributeName;
       }
 
+      const availableOperators = computed(() => {
+        console.log(typeof selectedAttribute.value);
+        if (typeof selectedAttribute.value === 'number') {
+          return operator.integer;
+        } else if (typeof selectedAttribute.value === 'string') {
+          return operator.string;
+        } else if (typeof selectedAttribute.value === 'boolean') {
+          return operator.boolean;
+        } else {
+          return [];
+        }
+      });
+
       return {
         state,
         operator,
@@ -169,6 +183,7 @@
         selectedLayer,
         attributes,
         selectedAttribute,
+        availableOperators,
       };
     },
   };
