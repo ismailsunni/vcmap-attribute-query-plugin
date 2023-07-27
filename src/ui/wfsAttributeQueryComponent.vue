@@ -4,7 +4,7 @@
       <template #default>
         <v-container class="py-0 px-1">
           <v-row>
-            <v-col cols="4">
+            <v-col cols="3">
               <VcsLabel html-for="textInput" class="text-caption">
                 WFS Layer
               </VcsLabel>
@@ -19,17 +19,34 @@
             </v-col>
           </v-row>
           <v-row v-if="attributes.length > 0">
-            <v-col cols="4">
+            <v-col cols="3">
               <VcsLabel html-for="textInput" class="text-caption">
                 Attribute
               </VcsLabel>
             </v-col>
             <v-col>
               <VcsSelect
+                @change="selectedAttributeChanged"
                 :items="attributes"
                 :item-text="(item) => item"
                 placeholder="Please select the attribute"
               />
+            </v-col>
+          </v-row>
+          <v-row v-if="selectedAttribute">
+            <v-col cols="3">
+              <VcsLabel html-for="textInput" class="text-caption">
+                Filter
+              </VcsLabel>
+            </v-col>
+            <v-col cols="3">
+              <VcsSelect
+                :items="operator.integer"
+                :item-text="(item) => item"
+              />
+            </v-col>
+            <v-col>
+              <VcsTextField> </VcsTextField>
             </v-col>
           </v-row>
           <v-row justify="end">
@@ -57,7 +74,7 @@
     // VcsRadioGrid,
     // VcsButton,
     // VcsDatePicker,
-    // VcsTextField,
+    VcsTextField,
     // VcsTooltip,
     // VcsSlider,
     VcsFormButton,
@@ -109,7 +126,7 @@
       // VcsButton,
       // VcsDatePicker,
       // VDivider,
-      // VcsTextField,
+      VcsTextField,
       // VcsTooltip,
       // VIcon,
       // VcsSlider,
@@ -119,21 +136,39 @@
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
       state.layers = getVectorLayers(app);
+      const operator = {
+        integer: ['=', '!=', '<', '<=', '>', '>='],
+        boolean: ['=', '!='],
+      };
+
+      const selectedLayer = ref('');
       const attributes = ref([]);
+      const selectedAttribute = ref(''); // TODO: Make it work with multiple attributes
 
       onMounted(() => {});
 
       async function selectedLayerChanged(layerName) {
+        selectedLayer.value = layerName;
+        selectedAttribute.value = '';
         attributes.value = await getLayerAttributes(app, layerName);
       }
+
+      function selectedAttributeChanged(attributeName) {
+        selectedAttribute.value = attributeName;
+      }
+
       return {
         state,
+        operator,
         start_query() {
           // no-eslint
           // console.log('test');
         },
         selectedLayerChanged,
+        selectedAttributeChanged,
+        selectedLayer,
         attributes,
+        selectedAttribute,
       };
     },
   };
