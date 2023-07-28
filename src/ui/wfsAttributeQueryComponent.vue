@@ -42,7 +42,14 @@
               <VcsSelect
                 @change="selectedAttributeChanged"
                 :items="attributes"
-                :item-text="(item) => item"
+                :item-text="(item) => item.name"
+                :item-value="
+                  (item) => {
+                    {
+                      return { id: item.id, name: item.name, type: item.type };
+                    }
+                  }
+                "
                 placeholder="Please select the attribute"
               />
             </v-col>
@@ -102,15 +109,11 @@
 
   import { name } from '../../package.json';
 
-  function getVectorLayers(app) {
+  function getLayerByClass(app, classNames) {
     const layers = [];
     [...app.layers].forEach((l) => {
-      if (
-        l.className === 'VectorLayer' ||
-        l.className === 'WFSLayer' ||
-        l.className === 'GeoJSONLayer'
-      ) {
-        layers.push({ value: l.name });
+      if (classNames.includes(l.className)) {
+        layers.push(l.name);
       }
     });
     return layers;
@@ -123,17 +126,17 @@
     return layer;
   }
 
-  const fakeAttributes = {
-    irradiance: ['Attribute 1', 'Attribute 2', 'Attribute 3'],
-    quartier: ['Attribute A', 'Attribute B', 'Attribute C'],
-  };
-
   async function getLayerAttributes(app, layerName) {
-    // const layer = await getLayerByName(app, layerName);
-    // const feature = layer.getFeatures()[0];
-    // const attributes = Object.keys(feature.getProperties());
-    // return attributes
-    return fakeAttributes[layerName.toLowerCase()];
+    // How to:
+    // Guess the WFS layer from the WMS layer
+    // Get the list of attributes and their type
+    // https://firms.modaps.eosdis.nasa.gov/mapserver/wfs/Canada/YourMapKey/?SERVICE=WFS&REQUEST=DescribeFeatureType&VERSION=2.0.0&typeNames=ms:fires_snpp_7days&application/json
+
+    return [
+      { id: 1, name: `Attribute ${layerName} 1`, type: 'double' },
+      { id: 2, name: `Attribute ${layerName} 2`, type: 'string' },
+      { id: 3, name: `Attribute ${layerName} 3`, type: 'boolean' },
+    ];
   }
 
   export default {
@@ -159,21 +162,23 @@
     setup() {
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
-      state.layers = getVectorLayers(app);
       const operator = {
         integer: ['=', '!=', '<', '<=', '>', '>='],
         boolean: ['=', '!='],
         string: ['LIKE', 'ILIKE'],
       };
 
-      // Fake values until we got the WFS working
-      const object3Ds = ref(['Buildings', 'Roof', 'roof3d']);
-      const layers = ref(['Irradiance', 'Quartier']);
+      const object3Ds = ref([]);
+      const wmsLayers = ref([]);
       const attributes = ref([]);
 
       const selectedObject3D = ref('');
       const selectedLayer = ref('');
       const selectedAttribute = ref(''); // TODO: Make it work with multiple attributes
+
+      // Set the values from the app
+      object3Ds.value = getLayerByClass(app, ['CesiumTilesetLayer']);
+      wmsLayers.value = getLayerByClass(app, ['WMSLayer']);
 
       onMounted(() => {});
 
@@ -183,8 +188,8 @@
         attributes.value = await getLayerAttributes(app, layerName);
       }
 
-      function selectedAttributeChanged(attributeName) {
-        selectedAttribute.value = attributeName;
+      function selectedAttributeChanged(attribute) {
+        selectedAttribute.value = attribute;
       }
 
       const highlightStyle = new VectorStyleItem({
@@ -211,16 +216,19 @@
       }
 
       function startQuery() {
+        // Build query to the WFS server with attribute filtering based on the operator and the criteria
+
         const selectedObjectIDs = [22328, 26610];
         highlightObjects('roof3d', selectedObjectIDs);
       }
 
       const availableOperators = computed(() => {
-        if (typeof selectedAttribute.value === 'number') {
+        const selectedType = selectedAttribute.value.type;
+        if (['number', 'double', 'integer'].includes(selectedType)) {
           return operator.integer;
-        } else if (typeof selectedAttribute.value === 'string') {
+        } else if (selectedType === 'string') {
           return operator.string;
-        } else if (typeof selectedAttribute.value === 'boolean') {
+        } else if (selectedType === 'boolean') {
           return operator.boolean;
         } else {
           return [];
@@ -235,7 +243,7 @@
         selectedLayerChanged,
         selectedAttributeChanged,
         object3Ds,
-        layers,
+        layers: wmsLayers,
         attributes,
         selectedObject3D,
         selectedLayer,
