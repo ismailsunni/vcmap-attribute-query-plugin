@@ -63,9 +63,12 @@
               <VcsTextField> </VcsTextField>
             </v-col>
           </v-row>
-          <v-row justify="end">
+          <v-row justify="space-around">
+            <v-col cols="6" md="4">
+              <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
+            </v-col>
             <v-col cols="6">
-              <VcsFormButton @click="start_query()">Start Query</VcsFormButton>
+              <VcsFormButton @click="startQuery()">Start Query</VcsFormButton>
             </v-col>
           </v-row>
         </v-container>
@@ -94,6 +97,7 @@
     VcsFormButton,
     VcsFormSection,
   } from '@vcmap/ui';
+  import { VectorStyleItem } from '@vcmap/core';
   import { inject, onMounted, ref, computed } from 'vue';
 
   import { name } from '../../package.json';
@@ -163,7 +167,7 @@
       };
 
       // Fake values until we got the WFS working
-      const object3Ds = ref(['Buildings', 'Roof']);
+      const object3Ds = ref(['Buildings', 'Roof', 'roof3d']);
       const layers = ref(['Irradiance', 'Quartier']);
       const attributes = ref([]);
 
@@ -176,12 +180,39 @@
       async function selectedLayerChanged(layerName) {
         selectedLayer.value = layerName;
         selectedAttribute.value = '';
-        // attributes.value = await getLayerAttributes(app, layerName);
         attributes.value = await getLayerAttributes(app, layerName);
       }
 
       function selectedAttributeChanged(attributeName) {
         selectedAttribute.value = attributeName;
+      }
+
+      const highlightStyle = new VectorStyleItem({
+        fill: { color: 'rgb(63,185,30)' },
+      });
+
+      function clearHightlight() {
+        object3Ds.value.forEach((layerName) => {
+          const object3DLayer = app.layers.getByKey(layerName);
+          if (object3DLayer) {
+            object3DLayer.featureVisibility.clearHighlighting();
+          }
+        });
+      }
+
+      function highlightObjects(layerName, objectIDs) {
+        const object3DLayer = app.layers.getByKey(layerName);
+        const hightlightParameters = {};
+        objectIDs.forEach((x) => {
+          hightlightParameters[x] = highlightStyle;
+        });
+        object3DLayer.featureVisibility.clearHighlighting();
+        object3DLayer.featureVisibility.highlight(hightlightParameters);
+      }
+
+      function startQuery() {
+        const selectedObjectIDs = [22328, 26610];
+        highlightObjects('roof3d', selectedObjectIDs);
       }
 
       const availableOperators = computed(() => {
@@ -199,10 +230,8 @@
       return {
         state,
         operator,
-        start_query() {
-          // no-eslint
-          // console.log('test');
-        },
+        startQuery,
+        clearHightlight,
         selectedLayerChanged,
         selectedAttributeChanged,
         object3Ds,
