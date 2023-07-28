@@ -11,8 +11,17 @@
             </v-col>
             <v-col>
               <VcsSelect
+                v-model="selectedObject3D"
                 :items="object3Ds"
                 :item-text="(item) => item.name"
+                :item-value="
+                  (item) => {
+                    return {
+                      name: item.name,
+                      url: item.url,
+                    };
+                  }
+                "
                 placeholder="Please select a layer"
               />
             </v-col>
@@ -154,10 +163,11 @@
   }
 
   function buildQuery(wmsLayer, attribute, operator, criteria) {
-    console.log(JSON.stringify(wmsLayer));
-    console.log(JSON.stringify(attribute));
-    console.log(operator);
-    console.log(criteria);
+    console.log(
+      `query params: ${JSON.stringify(wmsLayer)}, ${JSON.stringify(
+        attribute,
+      )}, ${operator}, ${criteria}`,
+    );
     // TODO: build query here based on the selected options
     return '';
   }
@@ -213,12 +223,14 @@
       onMounted(() => {});
 
       async function selectedLayerChanged(wmsLayer) {
+        // use v-model instead
         selectedWMSLayer.value = wmsLayer;
         selectedAttribute.value = '';
         attributes.value = await getLayerAttributes(app, wmsLayer);
       }
 
       function selectedAttributeChanged(attribute) {
+        // use v-model instead
         selectedAttribute.value = attribute;
       }
 
@@ -253,7 +265,11 @@
           selectedCriteria.value,
         );
         const selectedObjectIDs = runQuery(query);
-        highlightObjects('roof3d', selectedObjectIDs);
+        if (selectedObject3D.value.name === undefined) {
+          console.log('Please select 3D Object first');
+        } else {
+          highlightObjects(selectedObject3D.value.name, selectedObjectIDs);
+        }
       }
 
       const availableOperators = computed(() => {
