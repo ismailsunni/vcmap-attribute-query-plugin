@@ -12,7 +12,7 @@
             <v-col>
               <VcsSelect
                 :items="object3Ds"
-                :item-text="(item) => item"
+                :item-text="(item) => item.name"
                 placeholder="Please select a layer"
               />
             </v-col>
@@ -27,7 +27,16 @@
               <VcsSelect
                 @change="selectedLayerChanged"
                 :items="layers"
-                :item-text="(item) => item"
+                :item-text="(item) => item.name"
+                :item-value="
+                  (item) => {
+                    return {
+                      name: item.name,
+                      url: item.url,
+                      layers: item.layers,
+                    };
+                  }
+                "
                 placeholder="Please select a layer"
               />
             </v-col>
@@ -46,7 +55,7 @@
                 :item-value="
                   (item) => {
                     {
-                      return { id: item.id, name: item.name, type: item.type };
+                      return { name: item.name, type: item.type };
                     }
                   }
                 "
@@ -62,12 +71,13 @@
             </v-col>
             <v-col cols="3">
               <VcsSelect
+                v-model="selectedOperator"
                 :items="availableOperators"
                 :item-text="(item) => item"
               />
             </v-col>
             <v-col>
-              <VcsTextField> </VcsTextField>
+              <VcsTextField v-model="selectedCriteria"> </VcsTextField>
             </v-col>
           </v-row>
           <v-row justify="space-around">
@@ -85,22 +95,11 @@
 </template>
 
 <script>
-  import {
-    VContainer,
-    VRow,
-    VCol,
-    // VDivider,
-    //  VIcon
-  } from 'vuetify/lib';
+  import { VContainer, VRow, VCol } from 'vuetify/lib';
   import {
     VcsLabel,
     VcsSelect,
-    // VcsRadioGrid,
-    // VcsButton,
-    // VcsDatePicker,
     VcsTextField,
-    // VcsTooltip,
-    // VcsSlider,
     VcsFormButton,
     VcsFormSection,
   } from '@vcmap/ui';
@@ -113,18 +112,33 @@
     const layers = [];
     [...app.layers].forEach((l) => {
       if (classNames.includes(l.className)) {
-        layers.push(l.name);
+        if (l.className === 'WMSLayer') {
+          layers.push({
+            name: l.name,
+            url: l.url,
+            layers: l.layers,
+          });
+        } else if (l.className === 'CesiumTilesetLayer') {
+          layers.push({
+            name: l.name,
+            url: l.url,
+          });
+        } else {
+          layers.push({
+            name: l.name,
+          });
+        }
       }
     });
     return layers;
   }
 
-  async function getLayerByName(app, layerName) {
-    const layer = app.layers.getByKey(layerName);
-    await layer.fetchData();
+  // async function getLayerByName(app, layerName) {
+  //   const layer = app.layers.getByKey(layerName);
+  //   await layer.fetchData();
 
-    return layer;
-  }
+  //   return layer;
+  // }
 
   async function getLayerAttributes(app, layerName) {
     // How to:
@@ -133,10 +147,29 @@
     // https://firms.modaps.eosdis.nasa.gov/mapserver/wfs/Canada/YourMapKey/?SERVICE=WFS&REQUEST=DescribeFeatureType&VERSION=2.0.0&typeNames=ms:fires_snpp_7days&application/json
 
     return [
-      { id: 1, name: `Attribute ${layerName} 1`, type: 'double' },
-      { id: 2, name: `Attribute ${layerName} 2`, type: 'string' },
-      { id: 3, name: `Attribute ${layerName} 3`, type: 'boolean' },
+      { name: `Attribute ${layerName.name} double`, type: 'double' },
+      { name: `Attribute ${layerName.name} text`, type: 'string' },
+      { name: `Attribute ${layerName.name} bool`, type: 'boolean' },
     ];
+  }
+
+  function buildQuery(wmsLayer, attribute, operator, criteria) {
+    console.log(JSON.stringify(wmsLayer));
+    console.log(JSON.stringify(attribute));
+    console.log(operator);
+    console.log(criteria);
+    // TODO: build query here based on the selected options
+    return '';
+  }
+
+  function runQuery(query) {
+    // TODO: Implement on running the query to the WFS
+    // It should return the list of gml id
+    if (query === '') {
+      // Fake result for now
+      return [22328, 26610];
+    }
+    return [];
   }
 
   export default {
@@ -149,21 +182,14 @@
       VRow,
       VCol,
       VcsFormButton,
-      // VcsRadioGrid,
-      // VcsButton,
-      // VcsDatePicker,
-      // VDivider,
       VcsTextField,
-      // VcsTooltip,
-      // VIcon,
-      // VcsSlider,
     },
 
     setup() {
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
       const operator = {
-        integer: ['=', '!=', '<', '<=', '>', '>='],
+        number: ['=', '!=', '<', '<=', '>', '>='],
         boolean: ['=', '!='],
         string: ['LIKE', 'ILIKE'],
       };
@@ -172,9 +198,13 @@
       const wmsLayers = ref([]);
       const attributes = ref([]);
 
-      const selectedObject3D = ref('');
-      const selectedLayer = ref('');
-      const selectedAttribute = ref(''); // TODO: Make it work with multiple attributes
+      const selectedObject3D = ref({});
+      const selectedWMSLayer = ref({});
+
+      // TODO: Make it work with multiple attributes, operator, and criteria
+      const selectedAttribute = ref('');
+      const selectedOperator = ref('');
+      const selectedCriteria = ref('');
 
       // Set the values from the app
       object3Ds.value = getLayerByClass(app, ['CesiumTilesetLayer']);
@@ -182,10 +212,10 @@
 
       onMounted(() => {});
 
-      async function selectedLayerChanged(layerName) {
-        selectedLayer.value = layerName;
+      async function selectedLayerChanged(wmsLayer) {
+        selectedWMSLayer.value = wmsLayer;
         selectedAttribute.value = '';
-        attributes.value = await getLayerAttributes(app, layerName);
+        attributes.value = await getLayerAttributes(app, wmsLayer);
       }
 
       function selectedAttributeChanged(attribute) {
@@ -197,8 +227,8 @@
       });
 
       function clearHightlight() {
-        object3Ds.value.forEach((layerName) => {
-          const object3DLayer = app.layers.getByKey(layerName);
+        object3Ds.value.forEach((layer) => {
+          const object3DLayer = app.layers.getByKey(layer.name);
           if (object3DLayer) {
             object3DLayer.featureVisibility.clearHighlighting();
           }
@@ -216,16 +246,21 @@
       }
 
       function startQuery() {
-        // Build query to the WFS server with attribute filtering based on the operator and the criteria
-
-        const selectedObjectIDs = [22328, 26610];
+        const query = buildQuery(
+          selectedWMSLayer.value,
+          selectedAttribute.value,
+          selectedOperator.value,
+          selectedCriteria.value,
+        );
+        const selectedObjectIDs = runQuery(query);
         highlightObjects('roof3d', selectedObjectIDs);
       }
 
       const availableOperators = computed(() => {
+        // TODO: Make sure the type and the operator are available in WFS
         const selectedType = selectedAttribute.value.type;
         if (['number', 'double', 'integer'].includes(selectedType)) {
-          return operator.integer;
+          return operator.number;
         } else if (selectedType === 'string') {
           return operator.string;
         } else if (selectedType === 'boolean') {
@@ -246,8 +281,10 @@
         layers: wmsLayers,
         attributes,
         selectedObject3D,
-        selectedLayer,
+        selectedLayer: selectedWMSLayer,
         selectedAttribute,
+        selectedOperator,
+        selectedCriteria,
         availableOperators,
       };
     },
