@@ -4,7 +4,21 @@
       <template #default>
         <v-container class="py-0 px-1">
           <v-row>
-            <v-col cols="3">
+            <v-col cols="4">
+              <VcsLabel html-for="textInput" class="text-caption">
+                3D Object
+              </VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsSelect
+                :items="object3Ds"
+                :item-text="(item) => item"
+                placeholder="Please select a layer"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="4">
               <VcsLabel html-for="textInput" class="text-caption">
                 Layer
               </VcsLabel>
@@ -12,14 +26,14 @@
             <v-col>
               <VcsSelect
                 @change="selectedLayerChanged"
-                :items="state.layers"
-                :item-text="(item) => item.value"
+                :items="layers"
+                :item-text="(item) => item"
                 placeholder="Please select a layer"
               />
             </v-col>
           </v-row>
           <v-row v-if="attributes.length > 0">
-            <v-col cols="3">
+            <v-col cols="4">
               <VcsLabel html-for="textInput" class="text-caption">
                 Attribute
               </VcsLabel>
@@ -34,7 +48,7 @@
             </v-col>
           </v-row>
           <v-row v-if="selectedAttribute">
-            <v-col cols="3">
+            <v-col cols="4">
               <VcsLabel html-for="textInput" class="text-caption">
                 Filter
               </VcsLabel>
@@ -105,11 +119,17 @@
     return layer;
   }
 
+  const fakeAttributes = {
+    irradiance: ['Attribute 1', 'Attribute 2', 'Attribute 3'],
+    quartier: ['Attribute A', 'Attribute B', 'Attribute C'],
+  };
+
   async function getLayerAttributes(app, layerName) {
-    const layer = await getLayerByName(app, layerName);
-    const feature = layer.getFeatures()[0];
-    const attributes = Object.keys(feature.getProperties());
-    return attributes;
+    // const layer = await getLayerByName(app, layerName);
+    // const feature = layer.getFeatures()[0];
+    // const attributes = Object.keys(feature.getProperties());
+    // return attributes
+    return fakeAttributes[layerName.toLowerCase()];
   }
 
   export default {
@@ -142,8 +162,13 @@
         string: ['LIKE', 'ILIKE'],
       };
 
-      const selectedLayer = ref('');
+      // Fake values until we got the WFS working
+      const object3Ds = ref(['Buildings', 'Roof']);
+      const layers = ref(['Irradiance', 'Quartier']);
       const attributes = ref([]);
+
+      const selectedObject3D = ref('');
+      const selectedLayer = ref('');
       const selectedAttribute = ref(''); // TODO: Make it work with multiple attributes
 
       onMounted(() => {});
@@ -151,6 +176,7 @@
       async function selectedLayerChanged(layerName) {
         selectedLayer.value = layerName;
         selectedAttribute.value = '';
+        // attributes.value = await getLayerAttributes(app, layerName);
         attributes.value = await getLayerAttributes(app, layerName);
       }
 
@@ -159,7 +185,6 @@
       }
 
       const availableOperators = computed(() => {
-        console.log(typeof selectedAttribute.value);
         if (typeof selectedAttribute.value === 'number') {
           return operator.integer;
         } else if (typeof selectedAttribute.value === 'string') {
@@ -180,8 +205,11 @@
         },
         selectedLayerChanged,
         selectedAttributeChanged,
-        selectedLayer,
+        object3Ds,
+        layers,
         attributes,
+        selectedObject3D,
+        selectedLayer,
         selectedAttribute,
         availableOperators,
       };
