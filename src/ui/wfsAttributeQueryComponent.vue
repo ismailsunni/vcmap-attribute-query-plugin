@@ -58,7 +58,7 @@
             </v-col>
             <v-col>
               <VcsSelect
-                @change="selectedAttributeChanged"
+                v-model="selectedAttribute"
                 :items="attributes"
                 :item-text="(item) => item.name"
                 :item-value="
@@ -229,11 +229,6 @@
         attributes.value = await getLayerAttributes(app, wmsLayer);
       }
 
-      function selectedAttributeChanged(attribute) {
-        // use v-model instead
-        selectedAttribute.value = attribute;
-      }
-
       const highlightStyle = new VectorStyleItem({
         fill: { color: 'rgb(63,185,30)' },
       });
@@ -292,7 +287,6 @@
         startQuery,
         clearHightlight,
         selectedLayerChanged,
-        selectedAttributeChanged,
         object3Ds,
         layers: wmsLayers,
         attributes,
