@@ -8,41 +8,6 @@
     "epsg": "25833",
     "proj4": "+proj=utm +zone=33 +ellps=GRS80 +units=m +no_defs"
   },
-  "i18n": [
-    {
-      "name": "base",
-      "de": {
-        "layers": {
-          "pointcloud": {
-            "title": "Tiergarten"
-          },
-          "osmBuildingFootprints": {
-            "title": "OSM Gebäude Grundflächen"
-          }
-        },
-        "contentTree": {
-          "building": {
-            "title": "3D Gebäude"
-          }
-        }
-      },
-      "en": {
-        "layers": {
-          "pointcloud": {
-            "title": "Zoological garden"
-          },
-          "osmBuildingFootprints": {
-            "title": "OSM Building Footprints"
-          }
-        },
-        "contentTree": {
-          "building": {
-            "title": "3D buildings"
-          }
-        }
-      }
-    }
-  ],
   "featureInfo": [
     {
       "type": "TableFeatureInfoView",
@@ -142,12 +107,13 @@
     {
       "type": "CesiumTilesetLayer",
       "name": "roof3d",
-      "url": "https://rennes-coopterr-solaire-tiles.s3.fr-par.scw.cloud/fe157549-1c80-47f1-828a-f1a97bf92d80",
+      "title": "Roof 3D",
+      "url": "https://rennes-coopterr-solaire-tiles.s3.fr-par.scw.cloud/fe157549-1c80-47f1-828a-f1a97bf92d80/tileset.json",
       "activeOnStartup": true,
       "allowPicking": true,
       "screenSpaceError": 16,
       "screenSpaceErrorMobile": 32,
-      "zIndex": 1
+      "zIndex": 3
     },
 
     {
