@@ -35,6 +35,7 @@
             <v-col>
               <VcsSelect
                 @change="selectedLayerChanged"
+                v-model="selectedWMSLayer"
                 :items="layers"
                 :item-text="(item) => item.name"
                 :item-value="
@@ -125,7 +126,7 @@
           layers.push({
             name: l.name,
             url: l.url,
-            layers: l.layers,
+            layers: l.parameters.LAYERS,
           });
         } else if (l.className === 'CesiumTilesetLayer') {
           layers.push({
@@ -149,17 +150,24 @@
   //   return layer;
   // }
 
-  async function getLayerAttributes(app, layerName) {
+  async function getLayerAttributes(app, wmsLayer) {
     // How to:
     // Guess the WFS layer from the WMS layer
     // Get the list of attributes and their type
-    // https://firms.modaps.eosdis.nasa.gov/mapserver/wfs/Canada/YourMapKey/?SERVICE=WFS&REQUEST=DescribeFeatureType&VERSION=2.0.0&typeNames=ms:fires_snpp_7days&application/json
+    // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json
 
-    return [
-      { name: `Attribute ${layerName.name} double`, type: 'double' },
-      { name: `Attribute ${layerName.name} text`, type: 'string' },
-      { name: `Attribute ${layerName.name} bool`, type: 'boolean' },
-    ];
+    const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=${wmsLayer.layers}&outputFormat=application/json`;
+    const response = await fetch(url);
+    const jsonResponse = await response.json();
+    const attributes = [];
+    jsonResponse.featureTypes[0].properties.forEach((p) => {
+      attributes.push({
+        name: p.name,
+        type: p.localType,
+      });
+    });
+
+    return attributes;
   }
 
   function buildQuery(wmsLayer, attribute, operator, criteria) {
@@ -223,8 +231,6 @@
       onMounted(() => {});
 
       async function selectedLayerChanged(wmsLayer) {
-        // use v-model instead
-        selectedWMSLayer.value = wmsLayer;
         selectedAttribute.value = '';
         attributes.value = await getLayerAttributes(app, wmsLayer);
       }
@@ -270,7 +276,7 @@
       const availableOperators = computed(() => {
         // TODO: Make sure the type and the operator are available in WFS
         const selectedType = selectedAttribute.value.type;
-        if (['number', 'double', 'integer'].includes(selectedType)) {
+        if (['number', 'double', 'integer', 'int'].includes(selectedType)) {
           return operator.number;
         } else if (selectedType === 'string') {
           return operator.string;
@@ -291,7 +297,7 @@
         layers: wmsLayers,
         attributes,
         selectedObject3D,
-        selectedLayer: selectedWMSLayer,
+        selectedWMSLayer,
         selectedAttribute,
         selectedOperator,
         selectedCriteria,
