@@ -265,6 +265,8 @@
         boolean: ['=', '!='],
         string: ['LIKE', 'ILIKE'],
       };
+      // TODO: Make it dynamic later
+      const gmlIDAttribute = 'surface_id';
 
       const object3Ds = ref([]);
       const wmsLayers = ref([]);
@@ -319,9 +321,6 @@
             message: 'Please select 3D object first',
           });
         } else {
-          // TODO: Make it dynamic later
-          const gmlIDAttribute = 'surface_id';
-
           // Build Query URL
           const queryURL = buildQueryURL(
             selectedWMSLayer.value,
@@ -347,16 +346,37 @@
         }
       }
 
-      function downloadJSON() {
+      async function downloadJSON() {
+        // TODO: unify check input
+        if (selectedObject3D.value.name === undefined) {
+          app.notifier.add({
+            type: NotificationType.ERROR,
+            message: 'Please select 3D object first',
+          });
+          return;
+        }
+        // Build Query URL
+        const queryURL = buildQueryURL(
+          selectedWMSLayer.value,
+          gmlIDAttribute,
+          -1, // All features
+          selectedAttribute.value,
+          selectedOperator.value,
+          selectedCriteria.value,
+        );
+        // Fetch Data
+        const queryData = await fetchData(queryURL);
+        // Parse Data
+        const queryResult = parseQueryData(queryData, gmlIDAttribute);
+
         // Create a JSON object
-        const data = { no: 1, name: 'Sunni', country: 'Indonesia' };
-        const blob = new Blob([JSON.stringify(data)], {
+        const blob = new Blob([JSON.stringify(queryResult)], {
           type: 'application/json',
         });
 
         const virtualLink = document.createElement('a');
         virtualLink.href = URL.createObjectURL(blob);
-        virtualLink.download = 'data.json';
+        virtualLink.download = 'filtered-GML-ID.json';
         virtualLink.style.display = 'none';
         document.body.appendChild(virtualLink);
         virtualLink.click();
