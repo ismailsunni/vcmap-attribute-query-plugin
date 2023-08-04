@@ -355,6 +355,7 @@
           });
           return;
         }
+
         // Build Query URL
         const queryURL = buildQueryURL(
           selectedWMSLayer.value,
@@ -364,6 +365,7 @@
           selectedOperator.value,
           selectedCriteria.value,
         );
+
         // Fetch Data
         const queryData = await fetchData(queryURL);
         // Parse Data
@@ -374,14 +376,23 @@
           type: 'application/json',
         });
 
+        // Prepare filename
+        const cdt = new Date();
+        const suffix = cdt.toISOString().slice(0, -5).replace(/\D/g, '');
+
         const virtualLink = document.createElement('a');
         virtualLink.href = URL.createObjectURL(blob);
-        virtualLink.download = 'filtered-GML-ID.json';
+        virtualLink.download = `filtered-GML-IDs-${suffix}.json`;
         virtualLink.style.display = 'none';
         document.body.appendChild(virtualLink);
         virtualLink.click();
         URL.revokeObjectURL(virtualLink.href);
         document.body.removeChild(virtualLink);
+
+        app.notifier.add({
+          type: NotificationType.SUCCESS,
+          message: `${queryResult.numberReturned} selected GML ID are downloaded.`,
+        });
       }
 
       const availableOperators = computed(() => {
