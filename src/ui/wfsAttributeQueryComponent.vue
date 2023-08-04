@@ -112,6 +112,7 @@
     VcsTextField,
     VcsFormButton,
     VcsFormSection,
+    NotificationType,
   } from '@vcmap/ui';
   import { VectorStyleItem } from '@vcmap/core';
   import { inject, onMounted, ref, computed } from 'vue';
@@ -156,11 +157,11 @@
     // Get the list of attributes and their type
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json
 
+    const attributes = [];
     try {
       const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=${wmsLayer.layers}&outputFormat=application/json`;
       const response = await fetch(url);
       const jsonResponse = await response.json();
-      const attributes = [];
       jsonResponse.featureTypes[0].properties.forEach((p) => {
         attributes.push({
           name: p.name,
@@ -171,9 +172,10 @@
       return attributes;
     } catch (error) {
       app.notifier.add({
-        type: 'error',
+        type: NotificationType.ERROR,
         message: `Failed to get the attribute list from layer: ${wmsLayer.name}`,
       });
+      return attributes;
     }
   }
 
@@ -184,17 +186,42 @@
       )}, ${operator}, ${criteria}`,
     );
     // TODO: build query here based on the selected options
-    return '';
+    // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=getFeature&typeName=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json&cql_filter=all_area>15000&PropertyName=surface_id
+    const gmlIDAttribute = 'surface_id';
+    const maxFeatures = 500;
+    const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=getFeature&typeName=${wmsLayer.layers}&outputFormat=application/json&PropertyName=${gmlIDAttribute}&maxFeatures=${maxFeatures}&count=${maxFeatures}&cql_filter=${attribute.name}${operator}${criteria}&StartIndex=0`;
+    return url;
   }
 
-  function runQuery(query) {
+  async function runQuery(query) {
     // TODO: Implement on running the query to the WFS
     // It should return the list of gml id
+    console.log(query);
     if (query === '') {
       // Fake result for now
-      return [22328, 26610];
+      return {
+        selectedGmlIds: [22328, 26610],
+        totalFeatures: 100,
+        numberMatched: 50,
+        numberReturned: 2,
+      };
     }
-    return [];
+
+    // TODO: make it dynamic
+    const gmlIDAttribute = 'surface_id';
+
+    const response = await fetch(query);
+    const jsonResponse = await response.json();
+    const selectedGmlIds = [];
+    jsonResponse.features.forEach((f) => {
+      selectedGmlIds.push(f.properties[gmlIDAttribute]);
+    });
+    return {
+      selectedGmlIds,
+      totalFeatures: jsonResponse.totalFeatures,
+      numberMatched: jsonResponse.numberMatched,
+      numberReturned: jsonResponse.numberReturned,
+    };
   }
 
   export default {
@@ -256,6 +283,7 @@
       }
 
       function highlightObjects(layerName, objectIDs) {
+        console.log(objectIDs);
         const object3DLayer = app.layers.getByKey(layerName);
         const hightlightParameters = {};
         objectIDs.forEach((x) => {
@@ -265,21 +293,28 @@
         object3DLayer.featureVisibility.highlight(hightlightParameters);
       }
 
-      function startQuery() {
+      async function startQuery() {
         const query = buildQuery(
           selectedWMSLayer.value,
           selectedAttribute.value,
           selectedOperator.value,
           selectedCriteria.value,
         );
-        const selectedObjectIDs = runQuery(query);
+        const queryResult = await runQuery(query);
         if (selectedObject3D.value.name === undefined) {
           app.notifier.add({
-            type: 'error',
+            type: NotificationType.ERROR,
             message: 'Please select 3D object first',
           });
         } else {
-          highlightObjects(selectedObject3D.value.name, selectedObjectIDs);
+          app.notifier.add({
+            type: NotificationType.SUCCESS,
+            message: `Highlight ${queryResult.numberReturned} of ${queryResult.numberMatched} matched features`,
+          });
+          highlightObjects(
+            selectedObject3D.value.name,
+            queryResult.selectedGmlIds,
+          );
         }
       }
 
