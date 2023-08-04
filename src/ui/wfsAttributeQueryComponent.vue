@@ -149,12 +149,24 @@
     return layers;
   }
 
-  // async function getLayerByName(app, layerName) {
-  //   const layer = app.layers.getByKey(layerName);
-  //   await layer.fetchData();
+  function buildURL(baseUrl, params) {
+    const url = new URL(baseUrl);
 
-  //   return layer;
-  // }
+    Object.keys(params).forEach((key) => {
+      url.searchParams.append(key, params[key]);
+    });
+
+    return url;
+  }
+
+  async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  }
 
   async function getLayerAttributes(app, wmsLayer) {
     // How to:
@@ -164,9 +176,14 @@
 
     const attributes = [];
     try {
-      const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=${wmsLayer.layers}&outputFormat=application/json`;
-      const response = await fetch(url);
-      const jsonResponse = await response.json();
+      const url = buildURL(wmsLayer.url, {
+        SERVICE: 'WFS',
+        REQUEST: 'DescribeFeatureType',
+        typeNames: wmsLayer.layers, // Assume only 1 layer
+        outputFormat: 'application/json',
+      });
+
+      const jsonResponse = await fetchData(url);
       jsonResponse.featureTypes[0].properties.forEach((p) => {
         attributes.push({
           name: p.name,
