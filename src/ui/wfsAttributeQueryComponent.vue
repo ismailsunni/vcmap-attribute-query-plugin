@@ -91,11 +91,16 @@
             </v-col>
           </v-row>
           <v-row justify="space-around">
-            <v-col cols="6" md="4">
+            <v-col cols="6">
               <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
             </v-col>
             <v-col cols="6">
-              <VcsFormButton @click="startQuery()">Start Query</VcsFormButton>
+              <VcsFormButton @click="startQuery()">Highlight</VcsFormButton>
+            </v-col>
+          </v-row>
+          <v-row justify="space-around">
+            <v-col cols="6">
+              <VcsFormButton @click="downloadJSON()">Download</VcsFormButton>
             </v-col>
           </v-row>
         </v-container>
@@ -318,6 +323,23 @@
         }
       }
 
+      function downloadJSON() {
+        // Create a JSON object
+        const data = { no: 1, name: 'Sunni', country: 'Indonesia' };
+        const blob = new Blob([JSON.stringify(data)], {
+          type: 'application/json',
+        });
+
+        const virtualLink = document.createElement('a');
+        virtualLink.href = URL.createObjectURL(blob);
+        virtualLink.download = 'data.json';
+        virtualLink.style.display = 'none';
+        document.body.appendChild(virtualLink);
+        virtualLink.click();
+        URL.revokeObjectURL(virtualLink.href);
+        document.body.removeChild(virtualLink);
+      }
+
       const availableOperators = computed(() => {
         // TODO: Make sure the type and the operator are available in WFS
         const selectedType = selectedAttribute.value.type;
@@ -336,6 +358,7 @@
         state,
         operator,
         startQuery,
+        downloadJSON,
         clearHightlight,
         selectedLayerChanged,
         object3Ds,
