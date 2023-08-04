@@ -1,6 +1,6 @@
 import { createToggleAction, ToolboxType, WindowSlot } from '@vcmap/ui';
 import { version, name } from '../package.json';
-import WFSAttributeQuery from './ui/wfsAttributeQueryComponent.vue';
+import AttributeQuery from './ui/AttributeQueryComponent.vue';
 
 /**
  * @typedef {Object} PluginState
@@ -30,17 +30,17 @@ export default function plugin(config, baseUrl) {
     initialize(vcsUiApp, state) {
       const { action, destroy } = createToggleAction(
         {
-          id: 'wfsAttributeQueryWidgetAction',
-          title: 'WFS Attribute Query',
-          name: 'WFS Attribute Query',
+          id: 'attributeQueryWidgetAction',
+          title: 'Attribute Query',
+          name: 'Attribute Query',
           icon: 'mdi-database-search',
         },
         {
-          id: 'wfsAttributeQueryWidgetAction',
-          component: WFSAttributeQuery,
+          id: 'attributeQueryWidgetAction',
+          component: AttributeQuery,
           slot: WindowSlot.DYNAMIC_LEFT,
           state: {
-            headerTitle: 'WFS Attribute Query',
+            headerTitle: 'Attribute Query',
             headerIcon: 'mdi-database-search',
           },
         },
@@ -68,8 +68,8 @@ export default function plugin(config, baseUrl) {
     },
     i18n: {
       en: {
-        'wfs-attribute-query': {
-          title: 'WFS Attribute Query',
+        'attribute-query': {
+          title: 'Attribute Query',
         },
       },
     },

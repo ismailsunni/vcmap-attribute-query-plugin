@@ -245,7 +245,7 @@
   }
 
   export default {
-    name: 'WFSAttributeQuery',
+    name: 'AttributeQuery',
     components: {
       VContainer,
       VcsFormSection,
