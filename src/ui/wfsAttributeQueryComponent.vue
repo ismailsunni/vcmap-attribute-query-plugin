@@ -206,26 +206,27 @@
   function buildQueryURL(
     wmsLayer,
     gmlIDAttribute,
+    featureCount,
     attribute,
     operator,
     criteria,
   ) {
-    // TODO: build query here based on the selected options
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=getFeature&typeName=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json&cql_filter=all_area>15000&PropertyName=surface_id
-    const maxFeatures = 200;
-
-    const url = buildURL(wmsLayer.url, {
+    const params = {
       SERVICE: 'WFS',
       REQUEST: 'getFeature',
       typeName: wmsLayer.layers,
       outputFormat: 'application/json',
       PropertyName: gmlIDAttribute,
-      // Use both now for max features to avoid different WFS version
-      maxFeatures,
-      count: maxFeatures,
       cql_filter: `${attribute.name}${operator}${criteria}`,
       StartIndex: 0,
-    });
+    };
+    if (featureCount >= 0) {
+      // Use both now for max features to avoid different WFS version
+      params.maxFeatures = featureCount;
+      params.count = featureCount;
+    }
+    const url = buildURL(wmsLayer.url, params);
 
     return url;
   }
@@ -325,6 +326,7 @@
           const queryURL = buildQueryURL(
             selectedWMSLayer.value,
             gmlIDAttribute,
+            200, // Max features to highlight
             selectedAttribute.value,
             selectedOperator.value,
             selectedCriteria.value,
