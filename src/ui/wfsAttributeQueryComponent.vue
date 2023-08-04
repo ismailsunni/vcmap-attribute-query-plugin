@@ -156,18 +156,25 @@
     // Get the list of attributes and their type
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json
 
-    const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=${wmsLayer.layers}&outputFormat=application/json`;
-    const response = await fetch(url);
-    const jsonResponse = await response.json();
-    const attributes = [];
-    jsonResponse.featureTypes[0].properties.forEach((p) => {
-      attributes.push({
-        name: p.name,
-        type: p.localType,
+    try {
+      const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=DescribeFeatureType&typeNames=${wmsLayer.layers}&outputFormat=application/json`;
+      const response = await fetch(url);
+      const jsonResponse = await response.json();
+      const attributes = [];
+      jsonResponse.featureTypes[0].properties.forEach((p) => {
+        attributes.push({
+          name: p.name,
+          type: p.localType,
+        });
       });
-    });
 
-    return attributes;
+      return attributes;
+    } catch (error) {
+      app.notifier.add({
+        type: 'error',
+        message: `Failed to get the attribute list from layer: ${wmsLayer.name}`,
+      });
+    }
   }
 
   function buildQuery(wmsLayer, attribute, operator, criteria) {
@@ -267,7 +274,10 @@
         );
         const selectedObjectIDs = runQuery(query);
         if (selectedObject3D.value.name === undefined) {
-          console.log('Please select 3D Object first');
+          app.notifier.add({
+            type: 'error',
+            message: 'Please select 3D object first',
+          });
         } else {
           highlightObjects(selectedObject3D.value.name, selectedObjectIDs);
         }
