@@ -95,7 +95,9 @@
               <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
             </v-col>
             <v-col cols="6">
-              <VcsFormButton @click="startQuery()">Highlight</VcsFormButton>
+              <VcsFormButton @click="highlightResult()"
+                >Highlight</VcsFormButton
+              >
             </v-col>
           </v-row>
           <v-row justify="space-around">
@@ -201,48 +203,43 @@
     }
   }
 
-  function buildQuery(wmsLayer, attribute, operator, criteria) {
-    console.log(
-      `query params: ${JSON.stringify(wmsLayer)}, ${JSON.stringify(
-        attribute,
-      )}, ${operator}, ${criteria}`,
-    );
+  function buildQueryURL(
+    wmsLayer,
+    gmlIDAttribute,
+    attribute,
+    operator,
+    criteria,
+  ) {
     // TODO: build query here based on the selected options
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=getFeature&typeName=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json&cql_filter=all_area>15000&PropertyName=surface_id
-    const gmlIDAttribute = 'surface_id';
-    const maxFeatures = 500;
-    const url = `${wmsLayer.url}?SERVICE=WFS&REQUEST=getFeature&typeName=${wmsLayer.layers}&outputFormat=application/json&PropertyName=${gmlIDAttribute}&maxFeatures=${maxFeatures}&count=${maxFeatures}&cql_filter=${attribute.name}${operator}${criteria}&StartIndex=0`;
+    const maxFeatures = 200;
+
+    const url = buildURL(wmsLayer.url, {
+      SERVICE: 'WFS',
+      REQUEST: 'getFeature',
+      typeName: wmsLayer.layers,
+      outputFormat: 'application/json',
+      PropertyName: gmlIDAttribute,
+      // Use both now for max features to avoid different WFS version
+      maxFeatures,
+      count: maxFeatures,
+      cql_filter: `${attribute.name}${operator}${criteria}`,
+      StartIndex: 0,
+    });
+
     return url;
   }
 
-  async function runQuery(query) {
-    // TODO: Implement on running the query to the WFS
-    // It should return the list of gml id
-    console.log(query);
-    if (query === '') {
-      // Fake result for now
-      return {
-        selectedGmlIds: [22328, 26610],
-        totalFeatures: 100,
-        numberMatched: 50,
-        numberReturned: 2,
-      };
-    }
-
-    // TODO: make it dynamic
-    const gmlIDAttribute = 'surface_id';
-
-    const response = await fetch(query);
-    const jsonResponse = await response.json();
+  function parseQueryData(queryData, gmlIDAttribute) {
     const selectedGmlIds = [];
-    jsonResponse.features.forEach((f) => {
+    queryData.features.forEach((f) => {
       selectedGmlIds.push(f.properties[gmlIDAttribute]);
     });
     return {
       selectedGmlIds,
-      totalFeatures: jsonResponse.totalFeatures,
-      numberMatched: jsonResponse.numberMatched,
-      numberReturned: jsonResponse.numberReturned,
+      totalFeatures: queryData.totalFeatures,
+      numberMatched: queryData.numberMatched,
+      numberReturned: queryData.numberReturned,
     };
   }
 
@@ -304,8 +301,7 @@
         });
       }
 
-      function highlightObjects(layerName, objectIDs) {
-        console.log(objectIDs);
+      function highlight3DObjects(layerName, objectIDs) {
         const object3DLayer = app.layers.getByKey(layerName);
         const hightlightParameters = {};
         objectIDs.forEach((x) => {
@@ -315,25 +311,34 @@
         object3DLayer.featureVisibility.highlight(hightlightParameters);
       }
 
-      async function startQuery() {
-        const query = buildQuery(
-          selectedWMSLayer.value,
-          selectedAttribute.value,
-          selectedOperator.value,
-          selectedCriteria.value,
-        );
-        const queryResult = await runQuery(query);
+      async function highlightResult() {
         if (selectedObject3D.value.name === undefined) {
           app.notifier.add({
             type: NotificationType.ERROR,
             message: 'Please select 3D object first',
           });
         } else {
+          // TODO: Make it dynamic later
+          const gmlIDAttribute = 'surface_id';
+
+          // Build Query URL
+          const queryURL = buildQueryURL(
+            selectedWMSLayer.value,
+            gmlIDAttribute,
+            selectedAttribute.value,
+            selectedOperator.value,
+            selectedCriteria.value,
+          );
+          // Fetch Data
+          const queryData = await fetchData(queryURL);
+          // Parse Data
+          const queryResult = parseQueryData(queryData, gmlIDAttribute);
           app.notifier.add({
             type: NotificationType.SUCCESS,
             message: `Highlight ${queryResult.numberReturned} of ${queryResult.numberMatched} matched features`,
           });
-          highlightObjects(
+          // Highlight
+          highlight3DObjects(
             selectedObject3D.value.name,
             queryResult.selectedGmlIds,
           );
@@ -374,7 +379,7 @@
       return {
         state,
         operator,
-        startQuery,
+        highlightResult,
         downloadJSON,
         clearHightlight,
         selectedLayerChanged,
