@@ -51,6 +51,30 @@
               />
             </v-col>
           </v-row>
+
+          <v-row v-if="attributes.length > 0">
+            <v-col cols="4">
+              <VcsLabel html-for="textInput" class="text-caption">
+                GML ID
+              </VcsLabel>
+            </v-col>
+            <v-col>
+              <VcsSelect
+                v-model="selectedGMLIDAttribute"
+                :items="attributes"
+                :item-text="(item) => item.name"
+                :item-value="
+                  (item) => {
+                    {
+                      return { name: item.name, type: item.type };
+                    }
+                  }
+                "
+                placeholder="Please select the attribute"
+              />
+            </v-col>
+          </v-row>
+
           <v-row v-if="attributes.length > 0">
             <v-col cols="4">
               <VcsLabel html-for="textInput" class="text-caption">
@@ -265,8 +289,6 @@
         boolean: ['=', '!='],
         string: ['LIKE', 'ILIKE'],
       };
-      // TODO: Make it dynamic later
-      const gmlIDAttribute = 'surface_id';
 
       const object3Ds = ref([]);
       const wmsLayers = ref([]);
@@ -274,6 +296,7 @@
 
       const selectedObject3D = ref({});
       const selectedWMSLayer = ref({});
+      const selectedGMLIDAttribute = ref({});
 
       // TODO: Make it work with multiple attributes, operator, and criteria
       const selectedAttribute = ref('');
@@ -324,7 +347,7 @@
           // Build Query URL
           const queryURL = buildQueryURL(
             selectedWMSLayer.value,
-            gmlIDAttribute,
+            selectedGMLIDAttribute.value.name,
             200, // Max features to highlight
             selectedAttribute.value,
             selectedOperator.value,
@@ -333,7 +356,10 @@
           // Fetch Data
           const queryData = await fetchData(queryURL);
           // Parse Data
-          const queryResult = parseQueryData(queryData, gmlIDAttribute);
+          const queryResult = parseQueryData(
+            queryData,
+            selectedGMLIDAttribute.value.name,
+          );
           app.notifier.add({
             type: NotificationType.SUCCESS,
             message: `Highlight ${queryResult.numberReturned} of ${queryResult.numberMatched} matched features`,
@@ -359,7 +385,7 @@
         // Build Query URL
         const queryURL = buildQueryURL(
           selectedWMSLayer.value,
-          gmlIDAttribute,
+          selectedGMLIDAttribute.value.name,
           -1, // All features
           selectedAttribute.value,
           selectedOperator.value,
@@ -369,7 +395,10 @@
         // Fetch Data
         const queryData = await fetchData(queryURL);
         // Parse Data
-        const queryResult = parseQueryData(queryData, gmlIDAttribute);
+        const queryResult = parseQueryData(
+          queryData,
+          selectedGMLIDAttribute.value.name,
+        );
 
         // Create a JSON object
         const blob = new Blob([JSON.stringify(queryResult)], {
@@ -421,6 +450,7 @@
         attributes,
         selectedObject3D,
         selectedWMSLayer,
+        selectedGMLIDAttribute,
         selectedAttribute,
         selectedOperator,
         selectedCriteria,
