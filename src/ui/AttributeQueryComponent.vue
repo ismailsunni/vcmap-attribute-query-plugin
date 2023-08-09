@@ -22,7 +22,7 @@
                     };
                   }
                 "
-                placeholder="Please select a layer"
+                placeholder="Please select a 3D layer"
               />
             </v-col>
           </v-row>
@@ -47,7 +47,7 @@
                     };
                   }
                 "
-                placeholder="Please select a layer"
+                placeholder="Please select a WMS layer"
               />
             </v-col>
           </v-row>
@@ -70,7 +70,7 @@
                     }
                   }
                 "
-                placeholder="Please select the attribute"
+                placeholder="Attribute for GML ID"
               />
             </v-col>
           </v-row>
