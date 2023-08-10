@@ -268,6 +268,16 @@
     };
   }
 
+  function parseQueryDataForDownload(queryData, gmlIDAttribute) {
+    const features = [];
+    queryData.features.forEach((f) => {
+      const feature = f.properties;
+      feature.gmlID = f.properties[gmlIDAttribute];
+      features.push(feature);
+    });
+    return features;
+  }
+
   export default {
     name: 'AttributeQuery',
     components: {
@@ -385,7 +395,7 @@
         // Build Query URL
         const queryURL = buildQueryURL(
           selectedWMSLayer.value,
-          selectedGMLIDAttribute.value.name,
+          '', // All attributes
           -1, // All features
           selectedAttribute.value,
           selectedOperator.value,
@@ -395,7 +405,7 @@
         // Fetch Data
         const queryData = await fetchData(queryURL);
         // Parse Data
-        const queryResult = parseQueryData(
+        const queryResult = parseQueryDataForDownload(
           queryData,
           selectedGMLIDAttribute.value.name,
         );
