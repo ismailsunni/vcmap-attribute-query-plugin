@@ -55,7 +55,10 @@
       VcsSelect,
     },
     props: {
-      value: String,
+      attributes: {
+        type: Array,
+        required: true,
+      },
     },
 
     setup() {
@@ -64,12 +67,6 @@
         boolean: ['=', '!='],
         string: ['LIKE', 'ILIKE'],
       };
-
-      const attributes = ref([
-        { name: 'a', type: 'number' },
-        { name: 'b', type: 'boolean' },
-        { name: 'c', type: 'string' },
-      ]);
 
       const selectedAttribute = ref('');
       const selectedOperator = ref('');
@@ -90,7 +87,6 @@
       });
 
       return {
-        attributes,
         selectedAttribute,
         selectedOperator,
         selectedCriteria,

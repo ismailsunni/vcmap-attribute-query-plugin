@@ -74,7 +74,10 @@
               />
             </v-col>
           </v-row>
-          <AttributeFilter v-if="attributes.length > 0"></AttributeFilter>
+          <AttributeFilter
+            v-if="attributes.length > 0"
+            :attributes="attributes"
+          ></AttributeFilter>
 
           <v-row justify="space-around">
             <v-col cols="6">
