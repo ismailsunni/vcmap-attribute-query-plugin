@@ -74,46 +74,8 @@
               />
             </v-col>
           </v-row>
+          <AttributeFilter v-if="attributes.length > 0"></AttributeFilter>
 
-          <v-row v-if="attributes.length > 0">
-            <v-col cols="4">
-              <VcsLabel html-for="textInput" class="text-caption">
-                Attribute
-              </VcsLabel>
-            </v-col>
-            <v-col>
-              <VcsSelect
-                v-model="selectedAttribute"
-                :items="attributes"
-                :item-text="(item) => item.name"
-                :item-value="
-                  (item) => {
-                    {
-                      return { name: item.name, type: item.type };
-                    }
-                  }
-                "
-                placeholder="Please select the attribute"
-              />
-            </v-col>
-          </v-row>
-          <v-row v-if="selectedAttribute">
-            <v-col cols="4">
-              <VcsLabel html-for="textInput" class="text-caption">
-                Filter
-              </VcsLabel>
-            </v-col>
-            <v-col cols="3">
-              <VcsSelect
-                v-model="selectedOperator"
-                :items="availableOperators"
-                :item-text="(item) => item"
-              />
-            </v-col>
-            <v-col>
-              <VcsTextField v-model="selectedCriteria"> </VcsTextField>
-            </v-col>
-          </v-row>
           <v-row justify="space-around">
             <v-col cols="6">
               <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
@@ -136,17 +98,18 @@
 </template>
 
 <script>
+  import { inject, onMounted, ref, computed } from 'vue';
   import { VContainer, VRow, VCol } from 'vuetify/lib';
   import {
     VcsLabel,
     VcsSelect,
-    VcsTextField,
+    // VcsTextField,
     VcsFormButton,
     VcsFormSection,
     NotificationType,
   } from '@vcmap/ui';
   import { VectorStyleItem } from '@vcmap/core';
-  import { inject, onMounted, ref, computed } from 'vue';
+  import AttributeFilter from './AttributeFilter.vue';
 
   import { name } from '../../package.json';
 
@@ -288,7 +251,8 @@
       VRow,
       VCol,
       VcsFormButton,
-      VcsTextField,
+      // VcsTextField,
+      AttributeFilter,
     },
 
     setup() {
