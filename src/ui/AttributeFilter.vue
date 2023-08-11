@@ -40,7 +40,6 @@
   </div>
 </template>
 <script>
-  import { ref, computed } from 'vue';
   import { VCol, VRow } from 'vuetify/lib';
 
   import { VcsLabel, VcsTextField, VcsSelect } from '@vcmap/ui';
@@ -60,21 +59,35 @@
         required: true,
       },
     },
-
-    setup() {
-      const operator = {
-        number: ['=', '!=', '<', '<=', '>', '>='],
-        boolean: ['=', '!='],
-        string: ['LIKE', 'ILIKE'],
+    data() {
+      return {
+        selectedAttribute: '',
+        selectedOperator: '',
+        selectedCriteria: '',
       };
+    },
 
-      const selectedAttribute = ref('');
-      const selectedOperator = ref('');
-      const selectedCriteria = ref('');
+    watch: {
+      selectedAttribute(newValue) {
+        this.$emit('selectedAttribute', newValue);
+      },
+      selectedOperator(newValue) {
+        this.$emit('selectedOperator', newValue);
+      },
+      selectedCriteria(newValue) {
+        this.$emit('selectedCriteria', newValue);
+      },
+    },
 
-      const availableOperators = computed(() => {
+    computed: {
+      availableOperators() {
+        const operator = {
+          number: ['=', '!=', '<', '<=', '>', '>='],
+          boolean: ['=', '!='],
+          string: ['LIKE', 'ILIKE'],
+        };
         // TODO: Make sure the type and the operator are available in WFS
-        const selectedType = selectedAttribute.value.type;
+        const selectedType = this.selectedAttribute.type;
         if (['number', 'double', 'integer', 'int'].includes(selectedType)) {
           return operator.number;
         } else if (selectedType === 'string') {
@@ -84,14 +97,7 @@
         } else {
           return [];
         }
-      });
-
-      return {
-        selectedAttribute,
-        selectedOperator,
-        selectedCriteria,
-        availableOperators,
-      };
+      },
     },
   };
 </script>

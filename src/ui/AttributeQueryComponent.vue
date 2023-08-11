@@ -77,6 +77,9 @@
           <AttributeFilter
             v-if="attributes.length > 0"
             :attributes="attributes"
+            @selectedAttribute="selectedAttributeChanged"
+            @selectedOperator="selectedOperatorChanged"
+            @selectedCriteria="selectedCriteriaChanged"
           ></AttributeFilter>
 
           <v-row justify="space-around">
@@ -256,6 +259,20 @@
       VcsFormButton,
       // VcsTextField,
       AttributeFilter,
+    },
+    methods: {
+      selectedAttributeChanged(value) {
+        console.log(`selected attribute from parent ${value.name}`);
+        this.selectedAttribute = value;
+      },
+      selectedOperatorChanged(value) {
+        console.log(`selected operator from parent ${value}`);
+        this.selectedOperator = value;
+      },
+      selectedCriteriaChanged(value) {
+        console.log(`selected criteria from parent ${value}`);
+        this.selectedCriteria = value;
+      },
     },
 
     setup() {
