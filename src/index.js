@@ -1,6 +1,6 @@
 import { createToggleAction, ToolboxType, WindowSlot } from '@vcmap/ui';
 import { version, name } from '../package.json';
-import AttributeQuery from './ui/AttributeQueryComponent.vue';
+import AttributeQueryForm from './ui/AttributeQueryForm.vue';
 
 /**
  * @typedef {Object} PluginState
@@ -37,7 +37,7 @@ export default function plugin(config, baseUrl) {
         },
         {
           id: 'attributeQueryWidgetAction',
-          component: AttributeQuery,
+          component: AttributeQueryForm,
           slot: WindowSlot.DYNAMIC_LEFT,
           state: {
             headerTitle: 'Attribute Query',

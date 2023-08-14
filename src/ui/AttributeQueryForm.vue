@@ -74,13 +74,13 @@
               />
             </v-col>
           </v-row>
-          <AttributeFilter
+          <AttributeFilterItem
             v-if="attributes.length > 0"
             :attributes="attributes"
             @selectedAttribute="selectedAttributeChanged"
             @selectedOperator="selectedOperatorChanged"
             @selectedCriteria="selectedCriteriaChanged"
-          ></AttributeFilter>
+          ></AttributeFilterItem>
 
           <v-row justify="space-around">
             <v-col cols="6">
@@ -115,7 +115,7 @@
     NotificationType,
   } from '@vcmap/ui';
   import { VectorStyleItem } from '@vcmap/core';
-  import AttributeFilter from './AttributeFilter.vue';
+  import AttributeFilterItem from './AttributeFilterItem.vue';
 
   import { name } from '../../package.json';
 
@@ -248,7 +248,7 @@
   }
 
   export default {
-    name: 'AttributeQuery',
+    name: 'AttributeQueryForm',
     components: {
       VContainer,
       VcsFormSection,
@@ -258,7 +258,7 @@
       VCol,
       VcsFormButton,
       // VcsTextField,
-      AttributeFilter,
+      AttributeFilterItem,
     },
     methods: {
       selectedAttributeChanged(value) {
