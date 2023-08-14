@@ -116,6 +116,8 @@
   } from '@vcmap/ui';
   import { VectorStyleItem } from '@vcmap/core';
   import AttributeFilterItem from './AttributeFilterItem.vue';
+  import AttributeFilter from './attributeFilter.js';
+  import Attribute from './attribute.js';
 
   import { name } from '../../package.json';
 
@@ -264,15 +266,40 @@
       selectedAttributeChanged(value) {
         console.log(`selected attribute from parent ${value.name}`);
         this.selectedAttribute = value;
+        this.attributeFilter.attribute = value;
       },
       selectedOperatorChanged(value) {
         console.log(`selected operator from parent ${value}`);
         this.selectedOperator = value;
+        this.attributeFilter.operator = value;
       },
       selectedCriteriaChanged(value) {
         console.log(`selected criteria from parent ${value}`);
         this.selectedCriteria = value;
+        this.attributeFilter.value = value;
       },
+      highlight3DObjects(app, layerName, objectIDs) {
+        const highlightStyle = new VectorStyleItem({
+          fill: { color: 'rgb(63,185,30)' },
+        });
+
+        const object3DLayer = app.layers.getByKey(layerName);
+        const hightlightParameters = {};
+        objectIDs.forEach((x) => {
+          hightlightParameters[x] = highlightStyle;
+        });
+        console.log(this.attributeFilter.toCQL());
+        object3DLayer.featureVisibility.clearHighlighting();
+        object3DLayer.featureVisibility.highlight(hightlightParameters);
+      },
+    },
+    data() {
+      return {
+        /**
+         * @type {AttributeFilter|null}
+         */
+        attributeFilter: new AttributeFilter(new Attribute('', ''), '', ''),
+      };
     },
 
     setup() {
@@ -308,10 +335,6 @@
         attributes.value = await getLayerAttributes(app, wmsLayer);
       }
 
-      const highlightStyle = new VectorStyleItem({
-        fill: { color: 'rgb(63,185,30)' },
-      });
-
       function clearHightlight() {
         object3Ds.value.forEach((layer) => {
           const object3DLayer = app.layers.getByKey(layer.name);
@@ -319,16 +342,6 @@
             object3DLayer.featureVisibility.clearHighlighting();
           }
         });
-      }
-
-      function highlight3DObjects(layerName, objectIDs) {
-        const object3DLayer = app.layers.getByKey(layerName);
-        const hightlightParameters = {};
-        objectIDs.forEach((x) => {
-          hightlightParameters[x] = highlightStyle;
-        });
-        object3DLayer.featureVisibility.clearHighlighting();
-        object3DLayer.featureVisibility.highlight(hightlightParameters);
       }
 
       async function highlightResult() {
@@ -359,7 +372,8 @@
             message: `Highlight ${queryResult.numberReturned} of ${queryResult.numberMatched} matched features`,
           });
           // Highlight
-          highlight3DObjects(
+          this.highlight3DObjects(
+            app,
             selectedObject3D.value.name,
             queryResult.selectedGmlIds,
           );
