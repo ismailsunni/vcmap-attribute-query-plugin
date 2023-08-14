@@ -36,7 +36,7 @@
               <VcsSelect
                 @change="selectedLayerChanged"
                 v-model="selectedWMSLayer"
-                :items="layers"
+                :items="wmsLayers"
                 :item-text="(item) => item.name"
                 :item-value="
                   (item) => {
@@ -77,9 +77,7 @@
           <AttributeFilterItem
             v-if="attributes.length > 0"
             :attributes="attributes"
-            @selectedAttribute="selectedAttributeChanged"
-            @selectedOperator="selectedOperatorChanged"
-            @selectedCriteria="selectedCriteriaChanged"
+            @selectedAttributeFilter="selectedAttributeFilterChanged"
           ></AttributeFilterItem>
 
           <v-row justify="space-around">
@@ -269,17 +267,8 @@
       AttributeFilterItem,
     },
     methods: {
-      selectedAttributeChanged(value) {
-        console.log(`selected attribute from parent ${value.name}`);
-        this.attributeFilter.attribute = value;
-      },
-      selectedOperatorChanged(value) {
-        console.log(`selected operator from parent ${value}`);
-        this.attributeFilter.operator = value;
-      },
-      selectedCriteriaChanged(value) {
-        console.log(`selected criteria from parent ${value}`);
-        this.attributeFilter.value = value;
+      selectedAttributeFilterChanged(value) {
+        this.attributeFilter = value;
       },
       highlight3DObjects(app, layerName, objectIDs) {
         const highlightStyle = new VectorStyleItem({
@@ -291,7 +280,6 @@
         objectIDs.forEach((x) => {
           hightlightParameters[x] = highlightStyle;
         });
-        console.log(this.attributeFilter.toCQL());
         object3DLayer.featureVisibility.clearHighlighting();
         object3DLayer.featureVisibility.highlight(hightlightParameters);
       },
@@ -308,11 +296,6 @@
     setup() {
       const app = inject('vcsApp');
       const { state } = app.plugins.getByKey(name);
-      const operator = {
-        number: ['=', '!=', '<', '<=', '>', '>='],
-        boolean: ['=', '!='],
-        string: ['LIKE', 'ILIKE'],
-      };
 
       const object3Ds = ref([]);
       const wmsLayers = ref([]);
@@ -427,13 +410,12 @@
 
       return {
         state,
-        operator,
         highlightResult,
         downloadJSON,
         clearHightlight,
         selectedLayerChanged,
         object3Ds,
-        layers: wmsLayers,
+        wmsLayers,
         attributes,
         selectedObject3D,
         selectedWMSLayer,

@@ -43,6 +43,8 @@
   import { VCol, VRow } from 'vuetify/lib';
 
   import { VcsLabel, VcsTextField, VcsSelect } from '@vcmap/ui';
+  import AttributeFilter from './attributeFilter.js';
+  import Attribute from './attribute.js';
 
   export default {
     name: 'AtributeFilter',
@@ -61,6 +63,10 @@
     },
     data() {
       return {
+        /**
+         * @type {AttributeFilter|null}
+         */
+        attributeFilter: new AttributeFilter(new Attribute('', ''), '', ''),
         selectedAttribute: '',
         selectedOperator: '',
         selectedCriteria: '',
@@ -69,13 +75,16 @@
 
     watch: {
       selectedAttribute(newValue) {
-        this.$emit('selectedAttribute', newValue);
+        this.attributeFilter.attribute = newValue;
+        this.$emit('selectedAttributeFilter', this.attributeFilter);
       },
       selectedOperator(newValue) {
-        this.$emit('selectedOperator', newValue);
+        this.attributeFilter.operator = newValue;
+        this.$emit('selectedAttributeFilter', this.attributeFilter);
       },
       selectedCriteria(newValue) {
-        this.$emit('selectedCriteria', newValue);
+        this.attributeFilter.value = newValue;
+        this.$emit('selectedAttributeFilter', this.attributeFilter);
       },
     },
 
