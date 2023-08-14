@@ -104,7 +104,7 @@
 </template>
 
 <script>
-  import { inject, onMounted, ref, computed } from 'vue';
+  import { inject, onMounted, ref } from 'vue';
   import { VContainer, VRow, VCol } from 'vuetify/lib';
   import {
     VcsLabel,
@@ -198,13 +198,19 @@
     }
   }
 
+  /**
+   *
+   * @param {string} wmsLayer
+   * @param {string} gmlIDAttribute
+   * @param {number} featureCount
+   * @param {AttributeFilter} attributeFilter
+   * @returns {string}
+   */
   function buildQueryURL(
     wmsLayer,
     gmlIDAttribute,
     featureCount,
-    attribute,
-    operator,
-    criteria,
+    attributeFilter,
   ) {
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=getFeature&typeName=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json&cql_filter=all_area>15000&PropertyName=surface_id
     const params = {
@@ -213,7 +219,7 @@
       typeName: wmsLayer.layers,
       outputFormat: 'application/json',
       PropertyName: gmlIDAttribute,
-      cql_filter: `${attribute.name}${operator}${criteria}`,
+      cql_filter: `${attributeFilter.toCQL()}`,
       StartIndex: 0,
     };
     if (featureCount >= 0) {
@@ -265,17 +271,14 @@
     methods: {
       selectedAttributeChanged(value) {
         console.log(`selected attribute from parent ${value.name}`);
-        this.selectedAttribute = value;
         this.attributeFilter.attribute = value;
       },
       selectedOperatorChanged(value) {
         console.log(`selected operator from parent ${value}`);
-        this.selectedOperator = value;
         this.attributeFilter.operator = value;
       },
       selectedCriteriaChanged(value) {
         console.log(`selected criteria from parent ${value}`);
-        this.selectedCriteria = value;
         this.attributeFilter.value = value;
       },
       highlight3DObjects(app, layerName, objectIDs) {
@@ -319,11 +322,6 @@
       const selectedWMSLayer = ref({});
       const selectedGMLIDAttribute = ref({});
 
-      // TODO: Make it work with multiple attributes, operator, and criteria
-      const selectedAttribute = ref('');
-      const selectedOperator = ref('');
-      const selectedCriteria = ref('');
-
       // Set the values from the app
       object3Ds.value = getLayerByClass(app, ['CesiumTilesetLayer']);
       wmsLayers.value = getLayerByClass(app, ['WMSLayer']);
@@ -331,7 +329,6 @@
       onMounted(() => {});
 
       async function selectedLayerChanged(wmsLayer) {
-        selectedAttribute.value = '';
         attributes.value = await getLayerAttributes(app, wmsLayer);
       }
 
@@ -356,9 +353,7 @@
             selectedWMSLayer.value,
             selectedGMLIDAttribute.value.name,
             200, // Max features to highlight
-            selectedAttribute.value,
-            selectedOperator.value,
-            selectedCriteria.value,
+            this.attributeFilter,
           );
           // Fetch Data
           const queryData = await fetchData(queryURL);
@@ -395,9 +390,7 @@
           selectedWMSLayer.value,
           '', // All attributes
           -1, // All features
-          selectedAttribute.value,
-          selectedOperator.value,
-          selectedCriteria.value,
+          this.attributeFilter,
         );
 
         // Fetch Data
@@ -432,20 +425,6 @@
         });
       }
 
-      const availableOperators = computed(() => {
-        // TODO: Make sure the type and the operator are available in WFS
-        const selectedType = selectedAttribute.value.type;
-        if (['number', 'double', 'integer', 'int'].includes(selectedType)) {
-          return operator.number;
-        } else if (selectedType === 'string') {
-          return operator.string;
-        } else if (selectedType === 'boolean') {
-          return operator.boolean;
-        } else {
-          return [];
-        }
-      });
-
       return {
         state,
         operator,
@@ -459,10 +438,6 @@
         selectedObject3D,
         selectedWMSLayer,
         selectedGMLIDAttribute,
-        selectedAttribute,
-        selectedOperator,
-        selectedCriteria,
-        availableOperators,
       };
     },
   };
