@@ -200,17 +200,26 @@
 
   /**
    *
+   * @param {AttributeFilter[]} attributeFilters
+   * @returns {string}
+   */
+  function generaterCQLStatement(attributeFilters) {
+    return attributeFilters.map((af) => `(${af.toCQL()})`).join('AND');
+  }
+
+  /**
+   *
    * @param {string} wmsLayer
    * @param {string} gmlIDAttribute
    * @param {number} featureCount
-   * @param {AttributeFilter} attributeFilter
+   * @param {AttributeFilter[]} attributeFilters
    * @returns {string}
    */
   function buildQueryURL(
     wmsLayer,
     gmlIDAttribute,
     featureCount,
-    attributeFilter,
+    attributeFilters = [],
   ) {
     // https://public.sig.rennesmetropole.fr/geoserver/ows?SERVICE=WFS&REQUEST=getFeature&typeName=cli_climat:photovoltaïque_potentiel_classif_2021&outputFormat=application/json&cql_filter=all_area>15000&PropertyName=surface_id
     const params = {
@@ -219,7 +228,7 @@
       typeName: wmsLayer.layers,
       outputFormat: 'application/json',
       PropertyName: gmlIDAttribute,
-      cql_filter: `${attributeFilter.toCQL()}`,
+      cql_filter: `${generaterCQLStatement(attributeFilters)}`,
       StartIndex: 0,
     };
     if (featureCount >= 0) {
@@ -270,7 +279,6 @@
     },
     methods: {
       selectedAttributeFilterChanged(value) {
-        this.attributeFilter = value;
         let updatedIndex = -1;
         this.attributeFilters.forEach((af, index) => {
           if (af.uuid === value.uuid) {
@@ -298,9 +306,8 @@
     data() {
       return {
         /**
-         * @type {AttributeFilter|null}
+         * @type {AttributeFilter[]}
          */
-        attributeFilter: new AttributeFilter(new Attribute('', ''), '', ''),
         attributeFilters: [
           new AttributeFilter(new Attribute('', ''), '', ''),
           new AttributeFilter(new Attribute('', ''), '', ''),
@@ -351,7 +358,7 @@
             selectedWMSLayer.value,
             selectedGMLIDAttribute.value.name,
             200, // Max features to highlight
-            this.attributeFilter,
+            this.attributeFilters,
           );
           // Fetch Data
           const queryData = await fetchData(queryURL);
@@ -388,7 +395,7 @@
           selectedWMSLayer.value,
           '', // All attributes
           -1, // All features
-          this.attributeFilter,
+          this.attributeFilters,
         );
 
         // Fetch Data
