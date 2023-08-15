@@ -81,7 +81,11 @@
             :attributes="attributes"
             @selectedAttributeFilter="selectedAttributeFilterChanged"
           ></AttributeFilterItem>
-
+          <v-row justify="space-around">
+            <v-col cols="6">
+              <VcsFormButton @click="addFilter()">Add Filter</VcsFormButton>
+            </v-col>
+          </v-row>
           <v-row justify="space-around">
             <v-col cols="6">
               <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
@@ -302,16 +306,18 @@
         object3DLayer.featureVisibility.clearHighlighting();
         object3DLayer.featureVisibility.highlight(hightlightParameters);
       },
+      addFilter() {
+        this.attributeFilters.push(
+          new AttributeFilter(new Attribute('', ''), '', ''),
+        );
+      },
     },
     data() {
       return {
         /**
          * @type {AttributeFilter[]}
          */
-        attributeFilters: [
-          new AttributeFilter(new Attribute('', ''), '', ''),
-          new AttributeFilter(new Attribute('', ''), '', ''),
-        ],
+        attributeFilters: [],
       };
     },
 
