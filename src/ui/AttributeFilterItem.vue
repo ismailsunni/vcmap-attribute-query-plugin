@@ -60,13 +60,22 @@
         type: Array,
         required: true,
       },
+      uuid: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
         /**
          * @type {AttributeFilter|null}
          */
-        attributeFilter: new AttributeFilter(new Attribute('', ''), '', ''),
+        attributeFilter: new AttributeFilter(
+          new Attribute('', ''),
+          '',
+          '',
+          this.uuid,
+        ),
         selectedAttribute: '',
         selectedOperator: '',
         selectedCriteria: '',
@@ -96,7 +105,7 @@
           string: ['LIKE', 'ILIKE'],
         };
         // TODO: Make sure the type and the operator are available in WFS
-        const selectedType = this.selectedAttribute.type;
+        const selectedType = this.attributeFilter.attribute.type;
         if (['number', 'double', 'integer', 'int'].includes(selectedType)) {
           return operator.number;
         } else if (selectedType === 'string') {

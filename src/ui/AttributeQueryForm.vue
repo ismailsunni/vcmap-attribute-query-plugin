@@ -75,7 +75,9 @@
             </v-col>
           </v-row>
           <AttributeFilterItem
-            v-if="attributes.length > 0"
+            v-for="af in attributeFilters"
+            :key="af.uuid"
+            :uuid="af.uuid"
             :attributes="attributes"
             @selectedAttributeFilter="selectedAttributeFilterChanged"
           ></AttributeFilterItem>
@@ -269,6 +271,15 @@
     methods: {
       selectedAttributeFilterChanged(value) {
         this.attributeFilter = value;
+        let updatedIndex = -1;
+        this.attributeFilters.forEach((af, index) => {
+          if (af.uuid === value.uuid) {
+            updatedIndex = index;
+          }
+        });
+        if (updatedIndex > -1) {
+          this.attributeFilters[updatedIndex] = value;
+        }
       },
       highlight3DObjects(app, layerName, objectIDs) {
         const highlightStyle = new VectorStyleItem({
@@ -290,6 +301,10 @@
          * @type {AttributeFilter|null}
          */
         attributeFilter: new AttributeFilter(new Attribute('', ''), '', ''),
+        attributeFilters: [
+          new AttributeFilter(new Attribute('', ''), '', ''),
+          new AttributeFilter(new Attribute('', ''), '', ''),
+        ],
       };
     },
 
