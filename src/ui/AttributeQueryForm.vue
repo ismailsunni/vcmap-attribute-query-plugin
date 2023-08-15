@@ -2,7 +2,7 @@
   <v-container class="px-1 py-1 main">
     <VcsFormSection heading="Query Options">
       <v-container class="py-0 px-1">
-        <v-row>
+        <v-row no-gutters>
           <v-col cols="4">
             <VcsLabel html-for="textInput" class="text-caption">
               3D Object
@@ -25,7 +25,7 @@
             />
           </v-col>
         </v-row>
-        <v-row>
+        <v-row no-gutters>
           <v-col cols="4">
             <VcsLabel html-for="textInput" class="text-caption">
               Layer
@@ -51,7 +51,7 @@
           </v-col>
         </v-row>
 
-        <v-row v-if="attributes.length > 0">
+        <v-row v-if="attributes.length > 0" no-gutters>
           <v-col cols="4">
             <VcsLabel html-for="textInput" class="text-caption">
               GML ID

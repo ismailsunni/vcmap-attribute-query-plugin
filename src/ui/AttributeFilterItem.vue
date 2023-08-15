@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row>
+    <v-row no-gutters>
       <v-col cols="4">
         <VcsLabel html-for="textInput" class="text-caption">
           Attribute
@@ -22,7 +22,7 @@
         />
       </v-col>
     </v-row>
-    <v-row v-if="selectedAttribute">
+    <v-row no-gutters v-if="selectedAttribute">
       <v-col cols="4">
         <VcsLabel html-for="textInput" class="text-caption"> Filter </VcsLabel>
       </v-col>
