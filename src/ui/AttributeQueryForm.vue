@@ -1,108 +1,108 @@
 <template>
   <v-container class="px-1 py-1 main">
     <VcsFormSection heading="Query Options">
-      <template #default>
-        <v-container class="py-0 px-1">
-          <v-row>
-            <v-col cols="4">
-              <VcsLabel html-for="textInput" class="text-caption">
-                3D Object
-              </VcsLabel>
-            </v-col>
-            <v-col>
-              <VcsSelect
-                v-model="selectedObject3D"
-                :items="object3Ds"
-                :item-text="(item) => item.name"
-                :item-value="
-                  (item) => {
-                    return {
-                      name: item.name,
-                      url: item.url,
-                    };
-                  }
-                "
-                placeholder="Please select a 3D layer"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="4">
-              <VcsLabel html-for="textInput" class="text-caption">
-                Layer
-              </VcsLabel>
-            </v-col>
-            <v-col>
-              <VcsSelect
-                @change="selectedLayerChanged"
-                v-model="selectedWMSLayer"
-                :items="wmsLayers"
-                :item-text="(item) => item.name"
-                :item-value="
-                  (item) => {
-                    return {
-                      name: item.name,
-                      url: item.url,
-                      layers: item.layers,
-                    };
-                  }
-                "
-                placeholder="Please select a WMS layer"
-              />
-            </v-col>
-          </v-row>
+      <v-container class="py-0 px-1">
+        <v-row>
+          <v-col cols="4">
+            <VcsLabel html-for="textInput" class="text-caption">
+              3D Object
+            </VcsLabel>
+          </v-col>
+          <v-col>
+            <VcsSelect
+              v-model="selectedObject3D"
+              :items="object3Ds"
+              :item-text="(item) => item.name"
+              :item-value="
+                (item) => {
+                  return {
+                    name: item.name,
+                    url: item.url,
+                  };
+                }
+              "
+              placeholder="Please select a 3D layer"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="4">
+            <VcsLabel html-for="textInput" class="text-caption">
+              Layer
+            </VcsLabel>
+          </v-col>
+          <v-col>
+            <VcsSelect
+              @change="selectedLayerChanged"
+              v-model="selectedWMSLayer"
+              :items="wmsLayers"
+              :item-text="(item) => item.name"
+              :item-value="
+                (item) => {
+                  return {
+                    name: item.name,
+                    url: item.url,
+                    layers: item.layers,
+                  };
+                }
+              "
+              placeholder="Please select a WMS layer"
+            />
+          </v-col>
+        </v-row>
 
-          <v-row v-if="attributes.length > 0">
-            <v-col cols="4">
-              <VcsLabel html-for="textInput" class="text-caption">
-                GML ID
-              </VcsLabel>
-            </v-col>
-            <v-col>
-              <VcsSelect
-                v-model="selectedGMLIDAttribute"
-                :items="attributes"
-                :item-text="(item) => item.name"
-                :item-value="
-                  (item) => {
-                    {
-                      return { name: item.name, type: item.type };
-                    }
+        <v-row v-if="attributes.length > 0">
+          <v-col cols="4">
+            <VcsLabel html-for="textInput" class="text-caption">
+              GML ID
+            </VcsLabel>
+          </v-col>
+          <v-col>
+            <VcsSelect
+              v-model="selectedGMLIDAttribute"
+              :items="attributes"
+              :item-text="(item) => item.name"
+              :item-value="
+                (item) => {
+                  {
+                    return { name: item.name, type: item.type };
                   }
-                "
-                placeholder="Attribute for GML ID"
-              />
-            </v-col>
-          </v-row>
-          <AttributeFilterItem
-            v-for="af in attributeFilters"
-            :key="af.uuid"
-            :uuid="af.uuid"
-            :attributes="attributes"
-            @selectedAttributeFilter="selectedAttributeFilterChanged"
-          ></AttributeFilterItem>
-          <v-row justify="space-around">
-            <v-col cols="6">
-              <VcsFormButton @click="addFilter()">Add Filter</VcsFormButton>
-            </v-col>
-          </v-row>
-          <v-row justify="space-around">
-            <v-col cols="6">
-              <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
-            </v-col>
-            <v-col cols="6">
-              <VcsFormButton @click="highlightResult()"
-                >Highlight</VcsFormButton
-              >
-            </v-col>
-          </v-row>
-          <v-row justify="space-around">
-            <v-col cols="6">
-              <VcsFormButton @click="downloadJSON()">Download</VcsFormButton>
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
+                }
+              "
+              placeholder="Attribute for GML ID"
+            />
+          </v-col>
+        </v-row>
+      </v-container>
+    </VcsFormSection>
+    <VcsFormSection heading="Attribute Filter">
+      <v-container class="py-0 px-1">
+        <AttributeFilterItem
+          v-for="af in attributeFilters"
+          :key="af.uuid"
+          :uuid="af.uuid"
+          :attributes="attributes"
+          @selectedAttributeFilter="selectedAttributeFilterChanged"
+        ></AttributeFilterItem>
+        <v-row justify="space-around">
+          <v-col cols="6">
+            <VcsFormButton @click="addFilter()">Add Filter</VcsFormButton>
+          </v-col>
+        </v-row>
+        <v-row justify="space-around">
+          <v-col cols="6">
+            <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
+          </v-col>
+          <v-col cols="6">
+            <VcsFormButton @click="highlightResult()">Highlight</VcsFormButton>
+          </v-col>
+        </v-row>
+        <v-row justify="space-around">
+          <v-col cols="6">
+            <VcsFormButton @click="downloadJSON()">Download</VcsFormButton>
+          </v-col>
+        </v-row>
+      </v-container>
     </VcsFormSection>
   </v-container>
 </template>
@@ -113,7 +113,6 @@
   import {
     VcsLabel,
     VcsSelect,
-    // VcsTextField,
     VcsFormButton,
     VcsFormSection,
     NotificationType,
@@ -278,7 +277,6 @@
       VRow,
       VCol,
       VcsFormButton,
-      // VcsTextField,
       AttributeFilterItem,
     },
     methods: {
