@@ -432,7 +432,7 @@
 
         app.notifier.add({
           type: NotificationType.SUCCESS,
-          message: `${queryResult.numberReturned} selected GML ID are downloaded.`,
+          message: `${queryResult.length} selected GML ID are downloaded.`,
         });
       }
 
