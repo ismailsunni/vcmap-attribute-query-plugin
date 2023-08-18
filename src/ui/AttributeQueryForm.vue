@@ -83,6 +83,7 @@
           :uuid="af.uuid"
           :attributes="attributes"
           @selectedAttributeFilter="selectedAttributeFilterChanged"
+          @deleteAttributeFilter="deleteAttributeFilter"
         ></AttributeFilterItem>
         <v-row justify="space-around">
           <v-col cols="6">
@@ -308,6 +309,17 @@
         this.attributeFilters.push(
           new AttributeFilter(new Attribute('', ''), '', ''),
         );
+      },
+      deleteAttributeFilter(attributeFilter) {
+        let deletedIndex = -1;
+        this.attributeFilters.forEach((af, index) => {
+          if (af.uuid === attributeFilter.uuid) {
+            deletedIndex = index;
+          }
+        });
+        if (deletedIndex > -1) {
+          this.attributeFilters.splice(deletedIndex, 1);
+        }
       },
     },
     data() {

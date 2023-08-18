@@ -25,12 +25,13 @@
         <VcsToolButton
           :icon="'mdi-delete'"
           :tooltip="'Delete the attribute filter'"
+          @click="deleteAttributeFilter"
         ></VcsToolButton>
       </v-col>
     </v-row>
     <v-row no-gutters v-if="selectedAttribute">
       <v-col cols="4">
-        <VcsLabel html-for="textInput" class="text-caption"> Filter </VcsLabel>
+        <VcsLabel html-for="textInput" class="text-caption">Filter</VcsLabel>
       </v-col>
       <v-col cols="3">
         <VcsSelect
@@ -87,6 +88,12 @@
         selectedOperator: '',
         selectedCriteria: '',
       };
+    },
+
+    methods: {
+      deleteAttributeFilter() {
+        this.$emit('deleteAttributeFilter', this.attributeFilter);
+      },
     },
 
     watch: {
