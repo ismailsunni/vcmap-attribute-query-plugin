@@ -198,10 +198,12 @@
 
       const jsonResponse = await fetchData(url);
       jsonResponse.featureTypes[0].properties.forEach((p) => {
-        attributes.push({
-          name: p.name,
-          type: p.localType,
-        });
+        if (!p.type.startsWith('gml')) {
+          attributes.push({
+            name: p.name,
+            type: p.localType,
+          });
+        }
       });
 
       return attributes;
