@@ -75,7 +75,7 @@
         </v-row>
       </v-container>
     </VcsFormSection>
-    <VcsFormSection heading="Attribute Filter">
+    <VcsFormSection heading="Attribute Filter" v-if="attributes.length > 0">
       <v-container class="py-0 px-1">
         <AttributeFilterItem
           v-for="af in attributeFilters"
