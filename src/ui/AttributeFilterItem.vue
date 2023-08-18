@@ -21,6 +21,12 @@
           placeholder="Please select the attribute"
         />
       </v-col>
+      <v-col cols="1">
+        <VcsToolButton
+          :icon="'mdi-delete'"
+          :tooltip="'Delete the attribute filter'"
+        ></VcsToolButton>
+      </v-col>
     </v-row>
     <v-row no-gutters v-if="selectedAttribute">
       <v-col cols="4">
@@ -42,7 +48,7 @@
 <script>
   import { VCol, VRow } from 'vuetify/lib';
 
-  import { VcsLabel, VcsTextField, VcsSelect } from '@vcmap/ui';
+  import { VcsLabel, VcsTextField, VcsSelect, VcsToolButton } from '@vcmap/ui';
   import AttributeFilter from './attributeFilter.js';
   import Attribute from './attribute.js';
 
@@ -54,6 +60,7 @@
       VcsLabel,
       VcsTextField,
       VcsSelect,
+      VcsToolButton,
     },
     props: {
       attributes: {
