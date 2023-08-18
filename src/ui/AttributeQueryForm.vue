@@ -1,5 +1,5 @@
 <template>
-  <v-container class="px-1 py-1 main">
+  <v-form>
     <VcsFormSection heading="Query Options">
       <v-container class="py-0 px-1">
         <v-row no-gutters>
@@ -90,27 +90,39 @@
             <VcsFormButton @click="addFilter()">Add Filter</VcsFormButton>
           </v-col>
         </v-row>
-        <v-row justify="space-around">
-          <v-col cols="6">
-            <VcsFormButton @click="clearHightlight()">Clear</VcsFormButton>
-          </v-col>
-          <v-col cols="6">
-            <VcsFormButton @click="highlightResult()">Highlight</VcsFormButton>
-          </v-col>
-        </v-row>
-        <v-row justify="space-around">
-          <v-col cols="6">
-            <VcsFormButton @click="downloadJSON()">Download</VcsFormButton>
-          </v-col>
-        </v-row>
       </v-container>
     </VcsFormSection>
-  </v-container>
+    <v-container>
+      <v-row no-gutters>
+        <v-col>
+          <VcsFormButton
+            @click="clearHightlight()"
+            :tooltip="'Clear the current highlighted object'"
+            >Clear</VcsFormButton
+          >
+        </v-col>
+        <v-col>
+          <VcsFormButton
+            @click="downloadJSON()"
+            :tooltip="'Download all features match with the filter'"
+            >Download</VcsFormButton
+          >
+        </v-col>
+        <v-col>
+          <VcsFormButton
+            @click="highlightResult()"
+            :tooltip="'Highlight the 3D objects (max 200) based on the filter'"
+            >Highlight</VcsFormButton
+          >
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-form>
 </template>
 
 <script>
   import { inject, onMounted, ref } from 'vue';
-  import { VContainer, VRow, VCol } from 'vuetify/lib';
+  import { VContainer, VRow, VCol, VForm } from 'vuetify/lib';
   import {
     VcsLabel,
     VcsSelect,
@@ -277,6 +289,7 @@
       VcsSelect,
       VRow,
       VCol,
+      VForm,
       VcsFormButton,
       AttributeFilterItem,
     },
